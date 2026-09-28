@@ -1,0 +1,24 @@
+---
+/**
+ * An anchor whose href (and optionally its visible text) are HTML numeric
+ * entities, so the served HTML never contains the literal address (§6).
+ * Rendered with set:html — the classes used here must be global.
+ */
+import { toEntities, mailtoEntities, escapeHtml } from '../lib/obfuscate';
+
+interface Props {
+  address: string;
+  /** Visible label. When omitted, the address itself (entity-encoded) is shown. */
+  label?: string;
+  class?: string;
+  id?: string;
+}
+const { address, label, class: className = '', id } = Astro.props;
+
+const href = mailtoEntities(address);
+const text = label ? escapeHtml(label) : toEntities(address);
+const idAttr = id ? ` id="${id}"` : '';
+const html = `<a${idAttr} class="${className}" href="${href}">${text}</a>`;
+---
+
+<Fragment set:html={html} />

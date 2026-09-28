@@ -1,0 +1,36 @@
+{
+  "name": "ember-oak",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ember & Oak — small-batch coffee roasters. One-page site, server-rendered from Airtable with committed fallbacks.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "start": "node ./dist/server/entry.mjs",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lint:tokens": "node scripts/lint-tokens.mjs",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.0.0",
+    "@fontsource-variable/fraunces": "^5.2.5",
+    "@fontsource-variable/karla": "^5.2.5",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.0.0",
+    "lucide-astro": "^0.556.0",
+    "tailwindcss": "^4.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.63.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

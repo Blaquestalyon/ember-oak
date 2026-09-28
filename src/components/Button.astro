@@ -1,0 +1,51 @@
+---
+/**
+ * Shared button (§4 state matrix): default, hover, focus-visible, active/pressed,
+ * disabled. Variants: primary (the single ember fill) and ghost (hairline border).
+ * Renders an <a> when href is given, otherwise a <button>.
+ * Styles are global (.btn in global.css) so entity-encoded anchors share them.
+ */
+interface Props {
+  variant?: 'primary' | 'ghost';
+  href?: string;
+  id?: string;
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+  class?: string;
+  ariaLabel?: string;
+  ariaDisabled?: boolean;
+  dataAttrs?: Record<string, string>;
+}
+const {
+  variant = 'ghost',
+  href,
+  id,
+  type = 'button',
+  disabled = false,
+  class: className = '',
+  ariaLabel,
+  ariaDisabled,
+  dataAttrs = {},
+} = Astro.props;
+const classes = `btn btn--${variant} ${className}`.trim();
+---
+
+{
+  href ? (
+    <a id={id} href={href} class={classes} aria-label={ariaLabel} {...dataAttrs}>
+      <slot />
+    </a>
+  ) : (
+    <button
+      id={id}
+      type={type}
+      class={classes}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      aria-disabled={ariaDisabled ? 'true' : undefined}
+      {...dataAttrs}
+    >
+      <slot />
+    </button>
+  )
+}

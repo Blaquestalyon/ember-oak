@@ -1,0 +1,73 @@
+---
+/**
+ * The Page (§4): the whole website in one scroll.
+ * Hero → Roasts → In the drum → Story → Contact, inside the shell.
+ */
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/sections/Hero.astro';
+import Roasts from '../components/sections/Roasts.astro';
+import Film from '../components/sections/Film.astro';
+import Story from '../components/sections/Story.astro';
+import Contact from '../components/sections/Contact.astro';
+import { getResolvedContent } from '../lib/content';
+import { mediaStatus, manifest } from '../lib/media';
+import { toJsonEscapes } from '../lib/obfuscate';
+import { env } from '../lib/env';
+
+const state = await getResolvedContent();
+const media = mediaStatus();
+const c = state.content;
+
+// JSON-LD Organization (§4 page-wide details). The email is \uXXXX-escaped so
+// the served HTML never contains the literal address (§6).
+const jsonLd =
+  `{"@context":"https://schema.org","@type":"Organization",` +
+  `"name":"Ember & Oak",` +
+  `"email":"${toJsonEscapes(c['contact.email']!)}",` +
+  `"url":"${env.siteUrl}/",` +
+  `"logo":"${env.siteUrl}/favicon.svg"}`;
+---
+
+<Layout
+  title={c['meta.title']!}
+  description={c['meta.description']!}
+  email={c['contact.email']!}
+  footerLine={c['footer.line']!}
+  footerSocial={c['footer.social']!}
+  path="/"
+  ogImage={media.ogCardPresent ? manifest.ogCard : null}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={jsonLd} is:inline />
+  </Fragment>
+
+  <Hero
+    eyebrow={c['hero.eyebrow']!}
+    headline={c['hero.headline']!}
+    subhead={c['hero.subhead']!}
+    alt={c['hero.alt']!}
+    cue={c['hero.cue']!}
+  />
+
+  <Roasts
+    title={c['roasts.title']!}
+    intro={c['roasts.intro']!}
+    roasts={state.roasts}
+    email={c['contact.email']!}
+  />
+
+  <Film
+    title={c['film.title']!}
+    caption={c['film.caption']!}
+    description={c['film.description']!}
+  />
+
+  <Story title={c['story.title']!} body={c['story.body']!} emphasis={c['story.emphasis']!} />
+
+  <Contact
+    title={c['contact.title']!}
+    note={c['contact.note']!}
+    email={c['contact.email']!}
+    copyLabel={c['contact.copy_label']!}
+  />
+</Layout>

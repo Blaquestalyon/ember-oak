@@ -1,0 +1,283 @@
+/*
+ * Ember & Oak — global stylesheet.
+ * Order matters: tokens first, then Tailwind, then the theme bridge and base rules.
+ */
+@import './tokens.css';
+@import 'tailwindcss';
+
+/*
+ * Bridge: every Tailwind utility drawn from the token file.
+ * Components must use these utilities or var(--token) — never raw hex/px.
+ */
+@theme inline {
+  --color-*: initial;
+  --color-bg-base: var(--bg-base);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-sunken: var(--bg-sunken);
+  --color-hairline: var(--border-hairline);
+  --color-strong: var(--border-strong);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-accent-subtle: var(--accent-subtle-bg);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent: var(--accent-base);
+  --color-accent-pressed: var(--accent-pressed);
+  --color-accent-text: var(--accent-text);
+  --color-on-accent: var(--accent-text-on-accent);
+  --color-oak: var(--oak);
+  --color-char: var(--char);
+  --color-bean-green: var(--bean-green);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --font-*: initial;
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  --radius-*: initial;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  --text-*: initial;
+  --text-display-xl: var(--step-display-xl);
+  --text-display-xl--line-height: var(--lh-tight);
+  --text-display-l: var(--step-display-l);
+  --text-display-l--line-height: var(--lh-display-l);
+  --text-h2: var(--step-h2);
+  --text-h2--line-height: var(--lh-heading);
+  --text-h3: var(--step-h3);
+  --text-h3--line-height: var(--lh-h3);
+  --text-body-l: var(--step-body-l);
+  --text-body-l--line-height: var(--lh-body);
+  --text-body: var(--step-body);
+  --text-body--line-height: var(--lh-body);
+  --text-caption: var(--step-caption);
+  --text-caption--line-height: var(--lh-caption);
+  --text-label: var(--step-label);
+  --text-label--line-height: var(--lh-label);
+
+  --shadow-*: initial;
+  --shadow-hairline: var(--elev-hairline);
+  --shadow-glow: var(--elev-glow);
+}
+
+/*
+ * Self-hosted variable fonts (fontsource files, preloaded from the layout)
+ * with metric-adjusted local fallbacks so nothing shifts on swap.
+ */
+@font-face {
+  font-family: 'Fraunces fallback';
+  src: local('Georgia');
+  size-adjust: 102%;
+  ascent-override: 96%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Karla fallback';
+  src: local('Arial');
+  size-adjust: 100.6%;
+  ascent-override: 97%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+}
+
+@layer base {
+  html {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 100%;
+    line-height: var(--lh-body);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    background: var(--bg-base);
+    font-variant-ligatures: common-ligatures;
+  }
+
+  /* The one focus treatment, everywhere: 2px ember ring, 2px offset. */
+  :focus-visible {
+    outline: var(--focus-ring) solid var(--accent-base);
+    outline-offset: var(--focus-ring);
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background: var(--accent-subtle-bg);
+    color: var(--text-primary);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-variation-settings: 'opsz' 72, 'SOFT' 30, 'WONK' 1;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The coded mark's default size (22px per §4, from the token file). */
+.mark {
+  width: var(--mark-size);
+  height: var(--mark-size);
+  flex: none;
+}
+
+/* ---- Shared buttons (§4 state matrix) ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--hit-target);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--step-body);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+/* Primary — the single filled ember button. */
+.btn--primary {
+  background: var(--accent-base);
+  color: var(--accent-text-on-accent);
+  border: var(--hairline) solid transparent;
+}
+.btn--primary:hover {
+  background: var(--accent-hover);
+  box-shadow: var(--elev-glow);
+}
+.btn--primary:active {
+  background: var(--accent-pressed);
+  box-shadow: none;
+}
+
+/* Ghost — hairline border, lifts to strong on hover, ember-pressed border when active. */
+.btn--ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: var(--hairline) solid var(--border-hairline);
+}
+.btn--ghost:hover {
+  border-color: var(--border-strong);
+}
+.btn--ghost:active {
+  border-color: var(--accent-pressed);
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+.btn--primary:disabled:hover,
+.btn--primary[aria-disabled='true']:hover {
+  background: var(--accent-base);
+  box-shadow: none;
+}
+.btn--ghost:disabled:hover,
+.btn--ghost[aria-disabled='true']:hover {
+  background: transparent;
+  border-color: var(--border-hairline);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+
+@utility roast-log-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--step-label);
+  line-height: var(--lh-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility measure {
+  max-width: var(--measure);
+}
+
+/* Scroll-reveal: children rise 16px and fade over 240ms, staggered 60ms by --reveal-i. */
+@utility reveal {
+  opacity: 0;
+  transform: translateY(var(--space-4));
+  transition:
+    opacity 240ms var(--ease-out),
+    transform 240ms var(--ease-out);
+  transition-delay: calc(var(--reveal-i, 0) * 60ms);
+}
+
+.reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transform: none;
+    transition: opacity 120ms var(--ease-out);
+    transition-delay: 0ms;
+  }
+}
+
+/* No-JS: never hide content behind a reveal that cannot fire. */
+html.no-js .reveal {
+  opacity: 1;
+  transform: none;
+}

@@ -1,0 +1,67 @@
+---
+/** FOUNDATION STUB — replaced by the roasts parcel. */
+import type { VisibleRoast } from '../../lib/content';
+
+interface Props {
+  title: string;
+  intro: string;
+  roasts: VisibleRoast[];
+  email: string;
+}
+const { title, intro, roasts } = Astro.props;
+---
+
+<section id="roasts" class="roasts" data-reveal-group>
+  <h2 class="roasts__title reveal">{title}</h2>
+  <p class="roasts__intro reveal">{intro}</p>
+  {
+    roasts.length === 0 ? (
+      <div class="roasts__empty reveal">
+        <h3>Nothing on the counter yet.</h3>
+        <p>Today's roasts appear here as soon as they're added to the sheet.</p>
+      </div>
+    ) : (
+      <ul class="roasts__grid">
+        {roasts.map((roast) => (
+          <li class="reveal">
+            <h3>{roast.name}</h3>
+            <p>{roast.tastingNotes}</p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
+
+<style>
+  .roasts {
+    padding: var(--space-9) var(--space-5);
+    max-width: calc(var(--space-10) * 10);
+    margin: 0 auto;
+  }
+  .roasts__title {
+    font-size: var(--step-display-l);
+    line-height: var(--lh-display-l);
+  }
+  .roasts__intro {
+    color: var(--text-secondary);
+    font-size: var(--step-body-l);
+    max-width: 52ch;
+    margin-top: var(--space-3);
+  }
+  .roasts__grid {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0 0;
+    display: grid;
+    gap: var(--space-6);
+  }
+  .roasts__empty {
+    margin-top: var(--space-6);
+    background: var(--bg-surface);
+    box-shadow: var(--elev-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-7);
+    text-align: center;
+  }
+</style>

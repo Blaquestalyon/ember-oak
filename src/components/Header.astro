@@ -1,0 +1,194 @@
+---
+/**
+ * App shell header (§4): sticky, transparent over the hero, scrimmed after 48px
+ * of scroll; the roast line (signature moment 1) pinned flush to its top edge.
+ */
+import Mark from './Mark.astro';
+import ObfuscatedLink from './ObfuscatedLink.astro';
+
+interface Props {
+  /** Contact address for the "Email us" action (resolved content). */
+  email: string;
+  /** Show section links (only meaningful on the main page). */
+  withSectionNav?: boolean;
+}
+const { email, withSectionNav = true } = Astro.props;
+---
+
+<header class="site-header" id="site-header">
+  <!-- Signature moment 1: the roast line. Decorative. -->
+  <div class="roast-line" aria-hidden="true">
+    <div class="roast-line__fill" id="roast-line-fill">
+      <span class="roast-line__tip"></span>
+    </div>
+  </div>
+
+  <div class="site-header__inner">
+    <a href="/" class="site-header__brand" aria-label="Ember & Oak — back to the top">
+      <Mark />
+      <span class="site-header__wordmark">EMBER &amp; OAK</span>
+    </a>
+
+    <nav class="site-header__nav" aria-label="Sections">
+      {
+        withSectionNav && (
+          <>
+            <a class="site-header__link" href="/#roasts">
+              Roasts
+            </a>
+            <a class="site-header__link" href="/#film">
+              In the drum
+            </a>
+            <a class="site-header__link" href="/#story">
+              Story
+            </a>
+          </>
+        )
+      }
+      <ObfuscatedLink address={email} label="Email us" class="btn btn--primary site-header__cta" />
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    height: var(--header-h);
+    background: transparent;
+    border-bottom: var(--hairline) solid transparent;
+    transition:
+      background-color var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      backdrop-filter var(--dur-base) var(--ease-out);
+  }
+
+  .site-header.is-scrolled {
+    background: var(--header-scrim);
+    backdrop-filter: blur(var(--space-3));
+    -webkit-backdrop-filter: blur(var(--space-3));
+    border-bottom-color: var(--border-hairline);
+  }
+
+  @media (min-width: 1024px) {
+    .site-header {
+      height: var(--header-h-lg);
+    }
+  }
+
+  .site-header__inner {
+    max-width: calc(var(--space-10) * 10);
+    margin: 0 auto;
+    height: 100%;
+    padding: 0 var(--space-5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text-primary);
+    text-decoration: none;
+    min-height: var(--hit-target);
+  }
+
+  .site-header__wordmark {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: var(--track-wordmark);
+    white-space: nowrap;
+  }
+
+  .site-header__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .site-header__link {
+    display: none;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: var(--step-caption);
+    font-weight: 600;
+    min-height: var(--hit-target);
+    align-items: center;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .site-header__link:hover {
+    color: var(--text-primary);
+  }
+  .site-header__link:active {
+    color: var(--accent-text);
+  }
+
+  /* ≥768px: section links appear. Below, mark + Email us only (44px hits). */
+  @media (min-width: 768px) {
+    .site-header__link {
+      display: inline-flex;
+    }
+    .site-header :global(.site-header__cta) {
+      min-height: var(--control-h);
+    }
+  }
+
+  /* ---- The roast line ---- */
+  .roast-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: calc(var(--hairline) * 2);
+    background: transparent;
+  }
+
+  .roast-line__fill {
+    position: relative;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(
+      90deg,
+      var(--bean-green) 0%,
+      var(--accent-base) 60%,
+      var(--char) 100%
+    );
+  }
+
+  .roast-line__tip {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: var(--tip-glow-size);
+    height: var(--tip-glow-size);
+    transform: translate(50%, -50%);
+    border-radius: var(--radius-full);
+    box-shadow: var(--elev-glow);
+    animation: tip-pulse 2400ms ease-in-out infinite;
+  }
+
+  @keyframes tip-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .roast-line__tip {
+      animation: none;
+      opacity: 0.7;
+    }
+    .site-header {
+      transition: none;
+    }
+  }
+</style>

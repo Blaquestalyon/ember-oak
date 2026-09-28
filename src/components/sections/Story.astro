@@ -1,0 +1,39 @@
+---
+/** FOUNDATION STUB — replaced by the story/contact parcel. */
+interface Props {
+  title: string;
+  body: string;
+  emphasis: string;
+}
+const { title, body } = Astro.props;
+---
+
+<section id="story" class="story" data-reveal-group>
+  <div class="story__inner">
+    <h2 class="story__title reveal">{title}</h2>
+    <p class="story__body reveal">{body}</p>
+  </div>
+</section>
+
+<style>
+  .story {
+    background: var(--bg-surface);
+    border-top: var(--hairline) solid var(--border-hairline);
+    border-bottom: var(--hairline) solid var(--border-hairline);
+    padding: var(--space-9) var(--space-5);
+  }
+  .story__inner {
+    max-width: var(--measure);
+    margin: 0 auto;
+  }
+  .story__title {
+    font-size: var(--step-display-l);
+    line-height: var(--lh-display-l);
+  }
+  .story__body {
+    color: var(--text-secondary);
+    font-size: var(--step-body-l);
+    line-height: var(--lh-body);
+    margin-top: var(--space-5);
+  }
+</style>

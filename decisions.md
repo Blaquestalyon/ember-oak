@@ -33,13 +33,14 @@ The test count appears to be an off-by-one in the test plan text, not a missing
 key — every §4 surface maps to a §3 key with none left over.
 **Re-check at QA:** if QA fails "22 keys", the fix is to the test, not the app.
 
-## 5. Media lives in repo-root `media/`, served by a route, not in `public/`
+## 5. Media lives in repo-root `media/`, served by the middleware, not `public/`
 **Why:** §7 requires `Cache-Control: public, max-age=31536000, immutable` on
 /media/* and iOS video needs HTTP Range support; Astro's standalone static
 server sets neither for public/ files and its middleware never runs for them.
-The /media/[...file] route streams from `media/` with the exact headers and
-Range handling. Public URLs are unchanged (/media/...), so §4 markup and §12
-tests match the blueprint.
+A bracketed rest-route filename (`[...file].ts`) is refused by the repo push
+tooling, so /media/* is served directly from src/middleware.ts, streaming from
+`media/` with the exact headers and Range handling. Public URLs are unchanged
+(/media/...), so §4 markup and §12 tests match the blueprint.
 **Re-check:** if the adapter ever allows per-directory static headers, public/
 becomes viable again.
 

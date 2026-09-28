@@ -1,0 +1,124 @@
+---
+/**
+ * Footer (§4 Section F): mark + wordmark, footer.line, the fixed privacy line,
+ * copyright, and a social row only when footer.social is non-empty.
+ * No ember anywhere in the footer.
+ */
+import Mark from './Mark.astro';
+
+interface Props {
+  line: string;
+  social: string;
+}
+const { line, social } = Astro.props;
+
+interface SocialLink {
+  label: string;
+  url: string;
+}
+const socialLinks: SocialLink[] = social
+  .split(',')
+  .map((pair) => pair.trim())
+  .filter(Boolean)
+  .map((pair) => {
+    const sep = pair.indexOf('|');
+    if (sep === -1) return null;
+    const label = pair.slice(0, sep).trim();
+    const url = pair.slice(sep + 1).trim();
+    if (!label || !/^https:\/\//.test(url)) return null;
+    return { label, url };
+  })
+  .filter((l): l is SocialLink => l !== null);
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <Mark />
+      <span class="site-footer__wordmark">EMBER &amp; OAK</span>
+    </div>
+    <p class="site-footer__line">{line}</p>
+    <p class="site-footer__privacy">
+      This site sets no cookies, runs no trackers, and collects nothing about you.
+    </p>
+    <p class="site-footer__copyright tabular">© {year} Ember &amp; Oak.</p>
+    {
+      socialLinks.length > 0 && (
+        <ul class="site-footer__social">
+          {socialLinks.map((item) => (
+            <li>
+              <a href={item.url} rel="noopener">
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: var(--hairline) solid var(--border-hairline);
+    padding: var(--space-8) var(--space-5);
+  }
+
+  .site-footer__inner {
+    max-width: calc(var(--space-10) * 10);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .site-footer__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .site-footer__wordmark {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: var(--track-wordmark);
+  }
+
+  .site-footer__line,
+  .site-footer__privacy,
+  .site-footer__copyright {
+    color: var(--text-muted);
+    font-size: var(--step-caption);
+    line-height: var(--lh-caption);
+  }
+
+  .site-footer__social {
+    list-style: none;
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+  }
+
+  .site-footer__social a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: var(--space-1);
+    text-decoration-color: var(--border-strong);
+    font-size: var(--step-caption);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--hit-target);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+
+  .site-footer__social a:hover {
+    color: var(--text-primary);
+  }
+</style>

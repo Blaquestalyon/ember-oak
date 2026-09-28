@@ -1,0 +1,46 @@
+---
+/**
+ * The counter edge (§2 signature moment 2): every media frame sits on a 1px oak
+ * hairline that extends beyond the frame toward both viewport edges (40% opacity
+ * outside, 100% inside). Top corners 14px, bottom corners square.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<figure class={`counter-frame ${className}`.trim()}>
+  <div class="counter-frame__media">
+    <slot />
+  </div>
+  <span class="counter-frame__edge" aria-hidden="true"></span>
+</figure>
+
+<style>
+  .counter-frame {
+    position: relative;
+    margin: 0;
+    z-index: var(--z-media);
+  }
+
+  .counter-frame__media {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    overflow: hidden;
+    border-bottom: var(--hairline) solid var(--oak);
+  }
+
+  /* The counter runs on out of frame: an extension line at 40% opacity,
+     stretching toward both viewport edges. On mobile it stops at the
+     container gutter (the parent section's padding), so it never overflows. */
+  .counter-frame__edge {
+    position: absolute;
+    bottom: calc(-1 * var(--hairline));
+    left: calc(-1 * var(--counter-extend, var(--space-5)));
+    right: calc(-1 * var(--counter-extend, var(--space-5)));
+    height: var(--hairline);
+    background: var(--oak);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+</style>

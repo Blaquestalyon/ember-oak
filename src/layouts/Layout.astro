@@ -1,0 +1,121 @@
+---
+/**
+ * App shell layout (§4): head metadata, self-hosted fonts (preloaded), skip
+ * link, sticky header with the roast line, main region, footer, toast root.
+ */
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/karla';
+import '../styles/global.css';
+import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
+import karlaUrl from '@fontsource-variable/karla/files/karla-latin-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { env } from '../lib/env';
+
+interface Props {
+  title: string;
+  description: string;
+  email: string;
+  footerLine: string;
+  footerSocial: string;
+  /** Canonical path, e.g. "/" or "/status". */
+  path: string;
+  /** Open Graph image public path, when available. */
+  ogImage?: string | null;
+  withSectionNav?: boolean;
+}
+const {
+  title,
+  description,
+  email,
+  footerLine,
+  footerSocial,
+  path,
+  ogImage = null,
+  withSectionNav = true,
+} = Astro.props;
+
+const canonical = `${env.siteUrl}${path}`;
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link rel="preload" href={frauncesUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={karlaUrl} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ember & Oak" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={`${env.siteUrl}${ogImage}`} />}
+    {ogImage && <meta property="og:image:width" content="1200" />}
+    {ogImage && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={`${env.siteUrl}${ogImage}`} />}
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <Header email={email} withSectionNav={withSectionNav} />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer line={footerLine} social={footerSocial} />
+
+    <!-- Toast root (§4 Section E): one toast at a time, announced politely. -->
+    <div id="toast-root" class="toast-root" aria-live="polite"></div>
+
+    <script src="../scripts/shell.ts"></script>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    z-index: calc(var(--z-toast) + 1);
+    background: var(--bg-raised);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--elev-hairline);
+    text-decoration: none;
+    transform: translateY(calc(-1 * var(--space-10)));
+  }
+  .skip-link:focus-visible {
+    transform: none;
+  }
+
+  .toast-root {
+    position: fixed;
+    bottom: var(--space-5);
+    right: var(--space-5);
+    z-index: var(--z-toast);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-3);
+    pointer-events: none;
+  }
+  .toast-root :global(.toast) {
+    pointer-events: auto;
+  }
+</style>

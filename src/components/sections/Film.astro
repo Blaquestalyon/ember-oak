@@ -1,0 +1,31 @@
+---
+/** FOUNDATION STUB — replaced by the film parcel. */
+interface Props {
+  title: string;
+  caption: string;
+  description: string;
+}
+const { title, caption } = Astro.props;
+---
+
+<section id="film" class="film" data-reveal-group>
+  <h2 class="film__title reveal">{title}</h2>
+  <p class="film__caption reveal">{caption}</p>
+</section>
+
+<style>
+  .film {
+    padding: var(--space-9) var(--space-5);
+    max-width: calc(var(--space-10) * 10);
+    margin: 0 auto;
+  }
+  .film__title {
+    font-size: var(--step-display-l);
+    line-height: var(--lh-display-l);
+  }
+  .film__caption {
+    color: var(--text-muted);
+    font-size: var(--step-caption);
+    margin-top: var(--space-3);
+  }
+</style>

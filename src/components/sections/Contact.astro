@@ -1,0 +1,54 @@
+---
+/** FOUNDATION STUB — replaced by the story/contact parcel. */
+import ObfuscatedLink from '../ObfuscatedLink.astro';
+
+interface Props {
+  title: string;
+  note: string;
+  email: string;
+  copyLabel: string;
+}
+const { title, note, email } = Astro.props;
+---
+
+<section id="contact" class="contact" data-reveal-group>
+  <h2 class="contact__title reveal">{title}</h2>
+  <p class="contact__note reveal">{note}</p>
+  <p class="contact__address reveal">
+    <ObfuscatedLink address={email} class="contact__link" />
+  </p>
+</section>
+
+<style>
+  .contact {
+    padding: var(--space-10) var(--space-5);
+    text-align: center;
+  }
+  .contact__title {
+    font-size: var(--step-display-l);
+    line-height: var(--lh-display-l);
+  }
+  .contact__note {
+    color: var(--text-secondary);
+    font-size: var(--step-body-l);
+    max-width: 52ch;
+    margin: var(--space-3) auto 0;
+  }
+  .contact__address {
+    margin-top: var(--space-6);
+    font-size: var(--step-h2);
+    font-weight: 600;
+  }
+  .contact :global(.contact__link) {
+    color: var(--text-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-base);
+    text-decoration-thickness: var(--hairline);
+    text-underline-offset: var(--space-1);
+  }
+  .contact :global(.contact__link:hover) {
+    text-decoration-color: var(--accent-hover);
+    text-decoration-thickness: var(--focus-ring);
+    text-underline-offset: var(--space-2);
+  }
+</style>
