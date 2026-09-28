@@ -1,0 +1,36 @@
+{
+  "baseId": "appuuOpZoIhlCeRvs",
+  "baseName": "Ember & Oak — Site Content",
+  "tables": {
+    "pageContent": {
+      "id": "tbllv3s5nW3Gr5sWK",
+      "name": "Page Content",
+      "fields": {
+        "Key": "fldb13qgYJcTlRoRz",
+        "Value": "fldrePj2WNTrOeYZL",
+        "Section": "fldSHcAyrQUddcFxN",
+        "Max Length": "fldnYGiiBDcGQau6G",
+        "Notes": "fldBLinp0wuvUvFPJ",
+        "Updated": "fld5wfvUJUo1zji3J"
+      }
+    },
+    "roastProfiles": {
+      "id": "tblWDCR2VBxWApN1X",
+      "name": "Roast Profiles",
+      "fields": {
+        "Name": "fldNv081YMZxCMXMA",
+        "Roast Level": "fldWAzq0CdVKfYDLz",
+        "Origin": "fldEK6WDJzS2zHjUP",
+        "Tasting Notes": "fld4SuJghaJFQjvp0",
+        "Process": "fldXDKEqP1RYrMzPZ",
+        "Altitude": "fld8r8ro7iozGJXNJ",
+        "Batch Size": "fldwYEYQEkFht2Sd5",
+        "Image Slug": "fldxwfliWAnFMxYfE",
+        "Image Alt": "fldcYjsGEU3c6U12P",
+        "Sort Order": "fldYvxkK5jnHP3byt",
+        "Published": "fldeN0yCoh4W4vCzU"
+      }
+    }
+  },
+  "notes": "The app addresses tables by NAME via AIRTABLE_CONTENT_TABLE / AIRTABLE_ROASTS_TABLE per blueprint §10. Ids here are pinned for reference and recovery. The 'Updated' (last modified time) field is added by the owner in Airtable because computed fields cannot be created by the provisioning tool."
+}
