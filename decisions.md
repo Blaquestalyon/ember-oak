@@ -57,7 +57,7 @@ Consequences implemented:
 - JSON-LD `<script type="application/ld+json">` is a data block, not executed,
   and is not blocked by CSP.
 
-## 7. lucide-astro pinned to ^0.556.0
+## 7. lucide-astro pinned to 0.556.0
 **Why:** the version first written (^0.474.0) does not exist on npm.
 
 ## 8. Token lint exempts @media/@container lines
@@ -71,3 +71,19 @@ JSON-LD email uses \uXXXX escapes (entities do not decode inside JSON), and the
 clipboard-fallback toast text is composed in the browser from the decoded
 anchor, so the literal string also never ships inside a JS bundle. §4's pinned
 error copy that names the address renders it entity-encoded inside the sentence.
+
+## 10. No committed package-lock.json; every direct dependency is pinned EXACT
+**Why:** the repo is written through a push tool that takes file contents
+inline. The lockfile is ~190 KB of hashes; transcribing it through that channel
+risks a single-character corruption inside an integrity hash, which would break
+`npm ci` at deploy — and the pushed copy cannot be independently verified from
+the build sandbox (no git read access to the private repo). Instead,
+package.json pins every direct dependency to the exact version the build was
+verified against (fresh `npm install` + production build + boot re-tested after
+pinning), and the deploy uses `npm install`. Direct versions are deterministic;
+transitive drift is possible but is caught by the deploy health check and QA.
+This repo has no native modules in `dependencies` (sharp is only used at
+media-generation time, not runtime), which is the failure class that made
+missing lockfiles dangerous elsewhere.
+**Re-check:** if the push channel ever supports verified binary/large files,
+commit the real lockfile and switch the build back to `npm ci`.
