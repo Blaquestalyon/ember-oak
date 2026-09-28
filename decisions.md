@@ -87,3 +87,29 @@ media-generation time, not runtime), which is the failure class that made
 missing lockfiles dangerous elsewhere.
 **Re-check:** if the push channel ever supports verified binary/large files,
 commit the real lockfile and switch the build back to `npm ci`.
+
+## 11. Section-parcel judgment calls (unit-level, §2-silent visuals)
+Recorded so the reasons are re-checkable; none contradicts a pinned visual.
+- Hero cue hover: --accent-text → --accent-hover, 2px arrow nudge over --dur-fast
+  (suppressed under reduced motion); active --accent-pressed. LQIP scaled 1.08 to
+  hide blur edges; counter-edge extension zeroed on the full-bleed hero frame.
+- Roasts grid gaps --space-8/--space-7; chip padding --space-2; skeleton bar
+  heights --space-4/--space-5. The 900px sizes string is assembled from a TS
+  constant so the exact §4 string ships past the token lint.
+- Film: §4 "poster alone" vs §12 test 18 "poster with the centred play button" —
+  test 18 followed (button shown, never autoplay) since a poster with no way to
+  play would strand the visitor; videos-present-but-poster-missing → the §4
+  panel, per its literal "if the poster is missing too". Panel mode (no media at
+  all) renders title + panel and omits controls/caption/disclosure — controls
+  without a video are dead weight. No-JS hides Play/Pause/Replay and shows the
+  description expanded. Toggle label min-width holds Play↔Pause steady; the
+  loading spinner keeps spinning under reduced motion (it is status, not decor).
+- Contact/toast: toast max-width caps at viewport − 64px with overflow-wrap so
+  the long warning message never overflows 360px; close button 40px hit target;
+  address link :active underline --accent-pressed (pressed state unpinned).
+- Story: "centred" read as the centred 68ch column; text left-aligned inside it.
+
+## 12. Hero AVIF preload lives in index.astro's head slot
+**Why:** §5 flow 1 requires the hero AVIF to be in flight with the HTML. A
+<link rel="preload" as="image" imagesrcset> with the AVIF srcset is emitted only
+when the hero set exists, so a missing-media deploy adds no dead preload.
