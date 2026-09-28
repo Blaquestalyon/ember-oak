@@ -1,0 +1,293 @@
+---
+/**
+ * Site Status (§4): the owner's plain-English answer to "is my edit live,
+ * and is everything still there?" Public; reveals nothing private.
+ */
+import Layout from '../layouts/Layout.astro';
+import { getResolvedContent } from '../lib/content';
+import { mediaStatus } from '../lib/media';
+import { env, bootedAt } from '../lib/env';
+
+let failed = false;
+let state;
+let media;
+try {
+  state = await getResolvedContent();
+  media = mediaStatus();
+} catch {
+  failed = true;
+}
+
+function formatUtc(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const day = d.getUTCDate();
+  const month = d.toLocaleString('en-GB', { month: 'short', timeZone: 'UTC' });
+  const year = d.getUTCFullYear();
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const mm = String(d.getUTCMinutes()).padStart(2, '0');
+  return `${day} ${month} ${year} at ${hh}:${mm} UTC`;
+}
+
+function agoSuffix(iso: string | null): string {
+  if (!iso) return '';
+  const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return `(${s}s ago)`;
+  if (s < 3600) return `(${Math.floor(s / 60)}m ago)`;
+  return `(${Math.floor(s / 3600)}h ago)`;
+}
+
+function formatUptime(): string {
+  let s = Math.floor((Date.now() - bootedAt) / 1000);
+  const d = Math.floor(s / 86400);
+  s -= d * 86400;
+  const h = Math.floor(s / 3600);
+  s -= h * 3600;
+  const m = Math.floor(s / 60);
+  return `${d}d ${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m`;
+}
+
+type Dot = 'success' | 'warning' | 'danger' | 'muted';
+
+interface Row {
+  label: string;
+  value: string;
+  dot: Dot;
+  /** Extra lines listed beneath the value. */
+  detail?: { text: string; tone: 'danger' | 'warning' }[];
+}
+
+let rows: Row[] = [];
+let email = 'thebag@power-in-numbers.net';
+let footerLine = 'Ember & Oak · Small-batch coffee roasters';
+let footerSocial = '';
+
+if (!failed && state && media) {
+  email = state.content['contact.email']!;
+  footerLine = state.content['footer.line']!;
+  footerSocial = state.content['footer.social']!;
+
+  const sourceRow: Row =
+    state.source === 'airtable'
+      ? { label: 'Content source', value: 'Live sheet', dot: 'success' }
+      : state.source === 'cache'
+        ? { label: 'Content source', value: 'Saved copy', dot: 'warning' }
+        : {
+            label: 'Content source',
+            value: state.keyRejected
+              ? 'Built-in copy — the sheet key was rejected.'
+              : 'Built-in copy',
+            dot: 'danger',
+          };
+
+  rows = [
+    sourceRow,
+    {
+      label: 'Last checked',
+      value: state.lastCheckedAt
+        ? `${formatUtc(state.lastCheckedAt)} ${agoSuffix(state.lastCheckedAt)}`
+        : '—',
+      dot: state.lastCheckedAt ? 'success' : 'muted',
+    },
+    {
+      label: 'Roast cards published',
+      value: `${state.publishedCount} of ${state.totalRoastRows}`,
+      dot: state.publishedCount > 0 ? 'success' : 'warning',
+    },
+    {
+      label: 'Media files',
+      value: `${media.presentSets} of ${media.expectedSets} present`,
+      dot: media.presentSets === media.expectedSets ? 'success' : 'danger',
+      detail: media.missing.map((file) => ({ text: file, tone: 'danger' as const })),
+    },
+    state.warnings.length === 0
+      ? { label: 'Warnings', value: 'No warnings.', dot: 'success' }
+      : {
+          label: 'Warnings',
+          value: `${state.warnings.length}`,
+          dot: 'warning',
+          detail: state.warnings.map((w) => ({ text: w, tone: 'warning' as const })),
+        },
+    { label: 'Version', value: env.version, dot: 'success' },
+    { label: 'Uptime', value: formatUptime(), dot: 'success' },
+  ];
+}
+---
+
+<Layout
+  title="Site status — Ember & Oak"
+  description="Is my edit live, and is everything still there?"
+  email={email}
+  footerLine={footerLine}
+  footerSocial={footerSocial}
+  path="/status"
+  withSectionNav={false}
+>
+  <section class="status">
+    <div class="status__panel">
+      {
+        failed ? (
+          <>
+            <h1 class="status__title">We can't read our own status.</h1>
+            <p class="status__subtitle">
+              The site itself may still be fine — open the front page to check. If it's down too,
+              redeploy the last good version from your hosting dashboard.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 class="status__title">Site status</h1>
+            <p class="status__subtitle">
+              Edits you make in the sheet appear on the site within 60 seconds. Refresh this page
+              to check.
+            </p>
+            <dl class="status__rows">
+              {rows.map((row) => (
+                <div class="status__row">
+                  <dt class="status__label">
+                    <span class={`status__dot status__dot--${row.dot}`} aria-hidden="true" />
+                    {row.label}
+                  </dt>
+                  <dd class="status__value tabular">{row.value}</dd>
+                  {row.detail && row.detail.length > 0 && (
+                    <dd class="status__detail">
+                      <ul>
+                        {row.detail.map((d) => (
+                          <li class={`status__detail-item status__detail-item--${d.tone}`}>
+                            {d.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </dd>
+                  )}
+                </div>
+              ))}
+            </dl>
+          </>
+        )
+      }
+      <p class="status__back">
+        <a href="/">Back to the site</a>
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .status {
+    padding: var(--space-9) var(--space-5);
+    display: flex;
+    justify-content: center;
+  }
+
+  .status__panel {
+    width: 100%;
+    max-width: calc(var(--space-10) * 5);
+    background: var(--bg-surface);
+    box-shadow: var(--elev-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-7) var(--space-6);
+  }
+
+  .status__title {
+    font-size: var(--step-h2);
+    line-height: var(--lh-heading);
+  }
+
+  .status__subtitle {
+    margin-top: var(--space-3);
+    color: var(--text-secondary);
+    font-size: var(--step-body);
+    line-height: var(--lh-body);
+  }
+
+  .status__rows {
+    margin: var(--space-6) 0 0;
+  }
+
+  .status__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: baseline;
+    padding: var(--space-4) 0;
+    border-bottom: var(--hairline) solid var(--border-hairline);
+  }
+  .status__row:last-of-type {
+    border-bottom: none;
+  }
+
+  .status__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text-secondary);
+    font-size: var(--step-body);
+  }
+
+  .status__dot {
+    width: var(--dot);
+    height: var(--dot);
+    border-radius: var(--radius-full);
+    flex: none;
+  }
+  .status__dot--success {
+    background: var(--success);
+  }
+  .status__dot--warning {
+    background: var(--warning);
+  }
+  .status__dot--danger {
+    background: var(--danger);
+  }
+  .status__dot--muted {
+    background: var(--text-muted);
+  }
+
+  .status__value {
+    color: var(--text-primary);
+    text-align: right;
+    margin: 0;
+    font-size: var(--step-body);
+  }
+
+  .status__detail {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .status__detail ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 calc(var(--dot) + var(--space-3));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .status__detail-item {
+    font-size: var(--step-caption);
+    line-height: var(--lh-caption);
+  }
+  .status__detail-item--danger {
+    color: var(--danger);
+  }
+  .status__detail-item--warning {
+    color: var(--warning);
+  }
+
+  .status__back {
+    margin-top: var(--space-6);
+  }
+  .status__back a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: var(--space-1);
+    text-decoration-color: var(--border-strong);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--hit-target);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .status__back a:hover {
+    color: var(--text-primary);
+  }
+</style>
