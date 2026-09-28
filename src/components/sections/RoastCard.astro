@@ -1,0 +1,176 @@
+---
+/**
+ * One roast card (blueprint §4 Section B).
+ * Photograph in the counter-edge frame at 4:5 (3:2 when it is the only card),
+ * then Name, Tasting Notes (Fraunces italic), the roast-level chip (never
+ * ember — ember is reserved for heat), and the roast-log rows: label left /
+ * value right, tabular figures, a hairline divider between rows; a row whose
+ * value is empty is omitted entirely, never shown as "—".
+ * The card is not a link, not clickable and not focusable. Hovering it scales
+ * the photograph 1.00 → 1.02 over --dur-base, clipped by the frame; the scale
+ * is disabled under prefers-reduced-motion.
+ */
+import type { VisibleRoast } from '../../lib/content';
+import { manifest, type ImageSet } from '../../lib/media';
+import CounterEdgeFrame from '../CounterEdgeFrame.astro';
+
+interface Props {
+  roast: VisibleRoast;
+  /** True when this is the only card on the counter — the photo runs 3:2 instead of 4:5. */
+  solo?: boolean;
+}
+const { roast, solo = false } = Astro.props;
+
+// Content resolution (src/lib/content.ts) has already hidden any card whose
+// image set is missing, so `set` is always non-null here; guarded anyway so a
+// card can never throw. When null, the photo block is simply not rendered.
+const set: ImageSet | null =
+  roast.imageSlug === 'roast-light' ? manifest.roastLight : manifest.roastDark;
+
+/** srcset for one format across the rendered widths (640/1024/1600w). */
+const srcsetFor = (format: 'avif' | 'webp' | 'jpeg'): string =>
+  set
+    ? set.widths
+        .map((w) => {
+          const path = set.sources[format][String(w)];
+          return path ? `${path} ${w}w` : null;
+        })
+        .filter((entry): entry is string => entry !== null)
+        .join(', ')
+    : '';
+
+/** JPEG fallback src for browsers that ignore <source>: the 1024w rendition. */
+const jpegSrc = set
+  ? (set.sources.jpeg['1024'] ?? Object.values(set.sources.jpeg).at(-1) ?? '')
+  : '';
+
+// §4 pins sizes="(min-width: 900px) 50vw, 100vw" — the grid's own breakpoint.
+const cardColumnsBreakpoint = 900;
+const sizes = `(min-width: ${cardColumnsBreakpoint}px) 50vw, 100vw`;
+
+// Roast-log rows (§4): ORIGIN, PROCESS, ALTITUDE, BATCH. Empty rows are omitted.
+const rows: { label: string; value: string }[] = [
+  { label: 'Origin', value: roast.origin },
+  { label: 'Process', value: roast.process },
+  { label: 'Altitude', value: roast.altitude },
+  { label: 'Batch', value: roast.batchSize },
+].filter((row): row is { label: string; value: string } =>
+  Boolean(row.value && row.value.trim() !== '')
+);
+---
+
+<article class:list={['roast-card', { 'roast-card--solo': solo }]}>
+  {
+    set && (
+      <CounterEdgeFrame>
+        <picture>
+          <source type="image/avif" srcset={srcsetFor('avif')} sizes={sizes} />
+          <source type="image/webp" srcset={srcsetFor('webp')} sizes={sizes} />
+          <img
+            class="roast-card__img"
+            src={jpegSrc}
+            srcset={srcsetFor('jpeg')}
+            sizes={sizes}
+            width={set.width}
+            height={set.height}
+            alt={roast.imageAlt}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      </CounterEdgeFrame>
+    )
+  }
+
+  <h3 class="roast-card__name">{roast.name}</h3>
+  <p class="roast-card__notes">{roast.tastingNotes}</p>
+  <span class="roast-card__chip roast-log-label">{roast.roastLevel}</span>
+
+  <dl class="roast-card__log">
+    {
+      rows.map(({ label, value }) => (
+        <div class="roast-card__row">
+          <dt class="roast-card__row-label roast-log-label">{label}</dt>
+          <dd class="roast-card__row-value tabular">{value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</article>
+
+<style>
+  /* The photograph: 4:5 (3:2 when solo), covered, scaling on card hover and
+     clipped by the counter-edge frame's overflow. */
+  .roast-card__img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .roast-card--solo .roast-card__img {
+    aspect-ratio: 3 / 2;
+  }
+  .roast-card:hover .roast-card__img {
+    transform: scale(1.02);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .roast-card__img {
+      transition: none;
+    }
+    .roast-card:hover .roast-card__img {
+      transform: none;
+    }
+  }
+
+  .roast-card__name {
+    font-size: var(--step-h3);
+    line-height: var(--lh-h3);
+    margin-top: var(--space-5);
+  }
+
+  /* Tasting notes: Fraunces italic at --step-body-l, --text-secondary (§4). */
+  .roast-card__notes {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-body-l);
+    line-height: var(--lh-body);
+    color: var(--text-secondary);
+    margin-top: var(--space-1);
+  }
+
+  /* The roast-level chip: hairline border, muted text, 24px tall, never ember. */
+  .roast-card__chip {
+    display: inline-flex;
+    align-items: center;
+    height: var(--chip-h);
+    padding: 0 var(--space-2);
+    margin-top: var(--space-3);
+    border: var(--hairline) solid var(--border-hairline);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+  }
+
+  /* The roast log (§2 motif 3): label left / value right, 4px gap, hairline
+     divider between rows, tabular figures. */
+  .roast-card__log {
+    margin: var(--space-4) 0 0;
+  }
+  .roast-card__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1);
+    padding: var(--space-2) 0;
+  }
+  .roast-card__row + .roast-card__row {
+    border-top: var(--hairline) solid var(--border-hairline);
+  }
+  .roast-card__row-label {
+    color: var(--text-muted);
+  }
+  .roast-card__row-value {
+    margin: 0;
+    color: var(--text-secondary);
+    text-align: right;
+  }
+</style>

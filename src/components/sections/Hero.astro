@@ -1,5 +1,15 @@
 ---
-/** FOUNDATION STUB — replaced by the hero parcel. */
+/**
+ * Section A — Hero (blueprint §4).
+ * Full-bleed photograph in a counter-edge frame (§2 signature moment 2) with
+ * the scrim + drum-glow overlays, LQIP cross-fade, and the coded drum-glow
+ * panel as the designed fallback when the image set is missing or fails.
+ * Entrance choreography lives in ../../scripts/hero.ts (image load or 300ms).
+ */
+import { ArrowDown } from 'lucide-astro';
+import CounterEdgeFrame from '../CounterEdgeFrame.astro';
+import { manifest, mediaStatus, type ImageSet } from '../../lib/media';
+
 interface Props {
   eyebrow: string;
   headline: string;
@@ -7,60 +17,232 @@ interface Props {
   alt: string;
   cue: string;
 }
-const { eyebrow, headline, subhead, cue } = Astro.props;
+const { eyebrow, headline, subhead, alt, cue } = Astro.props;
+
+/** The photograph renders only when the whole set is present on disk (§5 flow 10). */
+const hero: ImageSet | null = mediaStatus().available.hero ? manifest.hero : null;
+
+function toSrcset(set: ImageSet, format: 'avif' | 'webp' | 'jpeg'): string {
+  return set.widths.map((w) => `${set.sources[format][String(w)]} ${w}w`).join(', ');
+}
+
+/** JPEG `src` fallback for ancient browsers: the second-largest rendition (1600w). */
+const jpegSrc = hero
+  ? hero.sources.jpeg[String(hero.widths[Math.max(0, hero.widths.length - 2)])]
+  : undefined;
 ---
 
-<section class="hero">
-  <div class="hero__text">
-    <p class="hero__eyebrow roast-log-label">{eyebrow}</p>
-    <h1 class="hero__headline">{headline}</h1>
-    <hr class="hero__rule" />
-    <p class="hero__subhead">{subhead}</p>
-    <a href="#roasts" class="hero__cue">{cue} ↓</a>
+<section class="hero" data-hero>
+  <div class="hero__media">
+    <CounterEdgeFrame>
+      <div class="hero__panel" aria-hidden="true"></div>
+      {
+        hero && (
+          <>
+            <img class="hero__lqip" src={hero.lqip} alt="" aria-hidden="true" decoding="async" />
+            <picture class="hero__picture">
+              <source type="image/avif" srcset={toSrcset(hero, 'avif')} sizes="100vw" />
+              <source type="image/webp" srcset={toSrcset(hero, 'webp')} sizes="100vw" />
+              <img
+                class="hero__img"
+                data-hero-img
+                src={jpegSrc}
+                srcset={toSrcset(hero, 'jpeg')}
+                sizes="100vw"
+                width={hero.width}
+                height={hero.height}
+                alt={alt}
+                fetchpriority="high"
+                loading="eager"
+                decoding="async"
+              />
+            </picture>
+          </>
+        )
+      }
+      <div class="hero__scrim" aria-hidden="true"></div>
+      <div class="hero__glow" aria-hidden="true"></div>
+    </CounterEdgeFrame>
+  </div>
+
+  <div class="hero__text" data-reveal-group>
+    <p class="hero__eyebrow roast-log-label reveal">{eyebrow}</p>
+    <h1 class="hero__headline reveal">{headline}</h1>
+    <hr class="hero__rule reveal" />
+    <p class="hero__subhead reveal">{subhead}</p>
+    <a href="#roasts" class="hero__cue reveal">
+      <span>{cue}</span>
+      <ArrowDown aria-hidden="true" />
+    </a>
   </div>
 </section>
 
+<script src="../../scripts/hero.ts"></script>
+
 <style>
   .hero {
+    position: relative;
     min-height: 88svh;
-    max-height: calc(var(--space-10) * 7);
+    /* max-height 900px, derived from the space scale: 128 × 7 + 4 (§4). */
+    max-height: calc(var(--space-10) * 7 + var(--space-1));
     display: flex;
     align-items: flex-end;
-    background: var(--bg-base);
-    background-image: var(--drum-glow);
-    padding: 0 var(--space-5) var(--space-9);
   }
+
+  /* ---- Media layer: the counter-edge frame fills the section. ---- */
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    /* Full-bleed frame — the counter edge needs no extension here. */
+    --counter-extend: 0%;
+  }
+  .hero__media :global(.counter-frame) {
+    position: absolute;
+    inset: 0;
+  }
+  .hero__media :global(.counter-frame__media) {
+    position: relative;
+    height: 100%;
+  }
+
+  /* Coded drum-glow panel: the base of the stack and the designed fallback
+     when the photograph is missing or fails to load (§4 Section A error). */
+  .hero__panel {
+    position: absolute;
+    inset: 0;
+    background-color: var(--bg-base);
+    background-image: var(--drum-glow);
+  }
+
+  /* LQIP layer: blurred 18px (16 + 4/2 from the space scale), scaled so the
+     blur never exposes a transparent edge inside the frame. */
+  .hero__lqip {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(calc(var(--space-4) + var(--space-1) / 2));
+    transform: scale(1.08);
+  }
+
+  .hero__picture {
+    position: absolute;
+    inset: 0;
+  }
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* With JS on, the photograph starts hidden over the LQIP and cross-fades in
+     over --dur-slow once loaded (hero.ts adds .is-loaded; also when cached). */
+  :global(html:not(.no-js)) .hero__img {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+  :global(html:not(.no-js)) .hero__img.is-loaded {
+    opacity: 1;
+  }
+
+  /* Image failed (hero.ts adds .is-failed): hide the photographic layers so
+     the coded drum-glow panel shows at the same box. No message — /status
+     reports the file. */
+  .hero.is-failed .hero__picture,
+  .hero.is-failed .hero__lqip {
+    display: none;
+  }
+
+  /* ---- Scrim + drum-glow overlays (coded, decorative). ---- */
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background-image: var(--scrim-hero);
+    pointer-events: none;
+  }
+  .hero__glow {
+    position: absolute;
+    inset: 0;
+    background-image: var(--drum-glow);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  /* ---- Text block: bottom-left, above the media layer. ---- */
   .hero__text {
+    position: relative;
+    z-index: calc(var(--z-media) + 1);
+    width: 100%;
     max-width: calc(var(--space-10) * 10);
     margin: 0 auto;
-    width: 100%;
+    padding: var(--space-9) var(--space-5) var(--space-9);
   }
+  @media (min-width: 1024px) {
+    .hero__text {
+      padding-bottom: var(--space-10);
+    }
+  }
+
   .hero__eyebrow {
     color: var(--text-muted);
   }
+
   .hero__headline {
     font-size: var(--step-display-xl);
     line-height: var(--lh-tight);
+    color: var(--text-primary);
     max-width: 16ch;
-    margin: var(--space-3) 0;
+    margin-top: var(--space-3);
   }
+
   .hero__rule {
     border: none;
     border-top: var(--hairline) solid var(--oak);
     width: var(--oak-rule-w);
     margin: var(--space-4) 0;
   }
+
   .hero__subhead {
     color: var(--text-secondary);
     font-size: var(--step-body-l);
+    line-height: var(--lh-body);
     max-width: 46ch;
   }
+
   .hero__cue {
     display: inline-flex;
     align-items: center;
+    gap: var(--space-2);
     min-height: var(--hit-target);
-    color: var(--accent-text);
-    text-decoration: none;
     margin-top: var(--space-4);
+    color: var(--accent-text);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .hero__cue:hover {
+    color: var(--accent-hover);
+  }
+  .hero__cue:active {
+    color: var(--accent-pressed);
+  }
+  .hero__cue :global(svg) {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .hero__cue:hover :global(svg) {
+    /* A 2px nudge (half of --space-1) toward the roasts. */
+    transform: translateY(calc(var(--space-1) / 2));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__cue,
+    .hero__cue :global(svg) {
+      transition: none;
+    }
+    .hero__cue:hover :global(svg) {
+      transform: none;
+    }
   }
 </style>

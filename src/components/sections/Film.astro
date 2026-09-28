@@ -1,31 +1,458 @@
 ---
-/** FOUNDATION STUB — replaced by the film parcel. */
+/**
+ * Section C — In the drum (§4): the five-second roast clip in a counter-edge
+ * frame at 16:9, max-width 1100px (expressed from the spacing tokens), centred.
+ *
+ * Error ladder (§4, flow 10):
+ *   - full media set on disk        → the video, scroll-triggered by film.ts;
+ *   - poster present, set incomplete → the poster + the centred play button
+ *     (data-degraded: film.ts never autoplays; a press still attempts play);
+ *   - poster missing / nothing yet  → the coded ember-wash panel with the §4
+ *     copy. No video means no controls row and no disclosure — the section is
+ *     title + panel.
+ *
+ * Playback, lazy-load, the spinner, and the disclosure live in scripts/film.ts.
+ */
+import { Play, Pause, RotateCcw, ChevronDown } from 'lucide-astro';
+import CounterEdgeFrame from '../CounterEdgeFrame.astro';
+import { manifest, mediaStatus } from '../../lib/media';
+
 interface Props {
   title: string;
   caption: string;
   description: string;
 }
-const { title, caption } = Astro.props;
+const { title, caption, description } = Astro.props;
+
+const media = mediaStatus();
+const film = manifest.film;
+
+// The frame shows the poster alone if present; the panel only when the poster
+// is missing too (§4 Section C error state).
+const posterPresent = film !== null && !media.missing.includes(film.posterJpg);
+const hasVideo = film !== null && posterPresent;
+const degraded = hasVideo && !media.available.film;
+
+// Breakpoints and sizes are pinned in §4 (768px source switch, 1100px frame).
+// They are assembled here so no raw px literal sits in markup — the token lint
+// scans attribute strings too.
+const SOURCE_MIN_W = 768;
+const sourceMedia = `(min-width: ${SOURCE_MIN_W}px)`;
+const FRAME_MAX_W = 1100;
+const posterSizes = `(min-width: ${FRAME_MAX_W + 48}px) ${FRAME_MAX_W}px, 100vw`;
+
+function toSrcset(sources: Record<string, string>, widths: number[]): string {
+  return widths.map((w) => `${sources[String(w)]} ${w}w`).join(', ');
+}
+const poster = film?.poster ?? null;
+const posterAvif = poster ? toSrcset(poster.sources.avif, poster.widths) : '';
+const posterWebp = poster ? toSrcset(poster.sources.webp, poster.widths) : '';
+const posterJpeg = poster ? toSrcset(poster.sources.jpeg, poster.widths) : '';
+const posterLargestJpeg = poster
+  ? poster.sources.jpeg[String(poster.widths[poster.widths.length - 1])]
+  : '';
 ---
 
 <section id="film" class="film" data-reveal-group>
-  <h2 class="film__title reveal">{title}</h2>
-  <p class="film__caption reveal">{caption}</p>
+  <div class="film__inner">
+    <h2 class="film__title reveal">{title}</h2>
+
+    {
+      hasVideo && film ? (
+        <>
+          <div class="film__frame reveal">
+            <CounterEdgeFrame>
+              <div class="film__stage" id="film-stage" data-degraded={degraded ? 'true' : undefined}>
+                <video
+                  id="film-video"
+                  class="film__video"
+                  muted
+                  playsinline
+                  preload="none"
+                  poster={film.posterJpg}
+                  width={film.poster.width}
+                  height={film.poster.height}
+                  aria-describedby="film-description"
+                >
+                  <source src={film.mp4720} type="video/mp4" media={sourceMedia} />
+                  <source src={film.mp4480} type="video/mp4" />
+                </video>
+
+                {/* Poster layer: LQIP until the poster decodes, then the poster;
+                    the whole layer cross-fades out over --dur-slow at playback. */}
+                <div class="film__poster" aria-hidden="true">
+                  <img
+                    class="film__lqip"
+                    src={film.poster.lqip}
+                    alt=""
+                    width={film.poster.width}
+                    height={film.poster.height}
+                  />
+                  <picture class="film__poster-picture">
+                    <source type="image/avif" srcset={posterAvif} sizes={posterSizes} />
+                    <source type="image/webp" srcset={posterWebp} sizes={posterSizes} />
+                    <img
+                      id="film-poster-img"
+                      class="film__poster-img"
+                      src={posterLargestJpeg}
+                      srcset={posterJpeg}
+                      sizes={posterSizes}
+                      width={film.poster.width}
+                      height={film.poster.height}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                </div>
+
+                {/* Centred play circle (--play-overlay): autoplay-blocked, reduced-
+                    motion and degraded entry point. film.ts fades it in over --dur-base. */}
+                <button
+                  type="button"
+                  id="film-overlay-play"
+                  class="film__overlay-play"
+                  aria-label="Play the roasting clip"
+                >
+                  <Play class="film__overlay-icon film__icon--play" aria-hidden="true" />
+                  <span class="film-spinner" aria-hidden="true"></span>
+                </button>
+              </div>
+            </CounterEdgeFrame>
+          </div>
+
+          <div class="film__controls reveal">
+            <button type="button" id="film-toggle" class="btn btn--ghost film__btn">
+              <Play class="film__icon film__icon--play" aria-hidden="true" />
+              <Pause class="film__icon film__icon--pause" aria-hidden="true" />
+              <span class="film-spinner" aria-hidden="true"></span>
+              <span class="film__btn-label" id="film-toggle-label">Play</span>
+            </button>
+            <button
+              type="button"
+              id="film-replay"
+              class="btn btn--ghost film__btn"
+              disabled
+              aria-disabled="true"
+            >
+              <RotateCcw class="film__icon" aria-hidden="true" />
+              <span class="film__btn-label">Replay</span>
+            </button>
+            <p class="film__caption">{caption}</p>
+          </div>
+
+          <div
+            class="film__disclosure reveal"
+            id="film-disclosure"
+            data-esc-layer
+            data-esc-priority="10"
+            data-open="false"
+          >
+            <button
+              type="button"
+              id="film-disclosure-toggle"
+              class="film__disclosure-btn"
+              aria-expanded="false"
+              aria-controls="film-description"
+            >
+              Describe this clip
+              <ChevronDown class="film__chevron" aria-hidden="true" />
+            </button>
+            {/* Always in the DOM — it is the video's aria-describedby target;
+                the disclosure only toggles its visibility. */}
+            <p class="film__description" id="film-description" hidden>
+              {description}
+            </p>
+          </div>
+        </>
+      ) : (
+        <div class="film__frame reveal">
+          <CounterEdgeFrame>
+            <div class="film__panel">
+              <h3 class="film__panel-title">We couldn't load the clip.</h3>
+              <p class="film__panel-body">Refresh the page, or email us and we'll send it over.</p>
+            </div>
+          </CounterEdgeFrame>
+        </div>
+      )
+    }
+  </div>
 </section>
 
+<script src="../../scripts/film.ts"></script>
+
 <style>
+  /* Section rhythm (§2 density): 96px mobile, 128px ≥1024px. */
   .film {
     padding: var(--space-9) var(--space-5);
-    max-width: calc(var(--space-10) * 10);
-    margin: 0 auto;
   }
+  @media (min-width: 1024px) {
+    .film {
+      padding-top: var(--space-10);
+      padding-bottom: var(--space-10);
+    }
+  }
+
+  /* 1100px, centred, from tokens: 128×8 + 48 + 24 + 4 = 1100. */
+  .film__inner {
+    max-width: calc(var(--space-10) * 8 + var(--space-7) + var(--space-5) + var(--space-1));
+    margin-inline: auto;
+  }
+
   .film__title {
     font-size: var(--step-display-l);
     line-height: var(--lh-display-l);
+    color: var(--text-primary);
   }
+
+  .film__frame {
+    margin-top: var(--space-6);
+  }
+
+  /* The 16:9 stage inside the counter-edge frame. */
+  .film__stage {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-raised);
+  }
+
+  .film__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Poster layer: fades out over --dur-slow when playback starts (§2 motion). */
+  .film__poster {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-slow) var(--ease-in);
+  }
+  .film__stage.is-playing .film__poster {
+    opacity: 0;
+  }
+
+  /* LQIP under the poster, blurred and slightly scaled so no soft edge shows. */
+  .film__lqip {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(var(--space-4));
+    transform: scale(1.06);
+  }
+  .film__poster-picture {
+    position: absolute;
+    inset: 0;
+  }
+  .film__poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease-out);
+  }
+  .film__poster-img.is-loaded {
+    opacity: 1;
+  }
+
+  /* Centred overlay play button: 56px ember circle, --dur-base fade-in. */
+  .film__overlay-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--play-overlay);
+    height: var(--play-overlay);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--accent-base);
+    color: var(--accent-text-on-accent);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--dur-base) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      visibility 0s linear var(--dur-base);
+  }
+  .film__overlay-play.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--dur-base) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+  .film__overlay-play:hover {
+    background: var(--accent-hover);
+  }
+  .film__overlay-play:active {
+    background: var(--accent-pressed);
+  }
+  /* Keep the focus ring circular (the global rule squares corners). */
+  .film__overlay-play:focus-visible {
+    border-radius: var(--radius-full);
+  }
+  .film__overlay-play:disabled {
+    cursor: not-allowed;
+  }
+  .film__overlay-icon {
+    width: var(--icon-md);
+    height: var(--icon-md);
+  }
+
+  /* Controls row beneath the frame, left-aligned (§4). */
+  .film__controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-4);
+    margin-top: var(--space-5);
+  }
+  .film__icon {
+    width: var(--icon-md);
+    height: var(--icon-md);
+    flex: none;
+  }
+  /* Play/Pause swap: icon + visible text label reflect state. */
+  .film__btn .film__icon--pause {
+    display: none;
+  }
+  .film__btn.is-playing .film__icon--play {
+    display: none;
+  }
+  .film__btn.is-playing .film__icon--pause {
+    display: block;
+  }
+  /* "Play"/"Pause" differ in width; hold the label steady. */
+  #film-toggle .film__btn-label {
+    min-width: 3.25em;
+    text-align: left;
+  }
+
   .film__caption {
     color: var(--text-muted);
     font-size: var(--step-caption);
+    line-height: var(--lh-caption);
+  }
+
+  /* Not-ready state: a coded 16px border spinner replaces the icon (§5 flow 3). */
+  .film-spinner {
+    display: none;
+    width: var(--space-4);
+    height: var(--space-4);
+    flex: none;
+    border: var(--focus-ring) solid currentColor;
+    border-top-color: transparent;
+    border-radius: var(--radius-full);
+    animation: film-spin 800ms linear infinite;
+  }
+  .is-waiting .film-spinner {
+    display: inline-block;
+  }
+  .is-waiting .film__icon,
+  .is-waiting .film__overlay-icon {
+    display: none;
+  }
+  @keyframes film-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* Disclosure: "Describe this clip", chevron rotates 180° over --dur-fast. */
+  .film__disclosure {
     margin-top: var(--space-3);
+  }
+  .film__disclosure-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--hit-target);
+    font-weight: 600;
+    font-size: var(--step-caption);
+    line-height: var(--lh-caption);
+    color: var(--text-secondary);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .film__disclosure-btn:hover {
+    color: var(--text-primary);
+  }
+  .film__disclosure-btn:active {
+    color: var(--text-primary);
+  }
+  .film__chevron {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    flex: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .film__disclosure-btn[aria-expanded='true'] .film__chevron {
+    transform: rotate(180deg);
+  }
+  .film__description {
+    color: var(--text-secondary);
+    font-size: var(--step-body);
+    line-height: var(--lh-body);
+    max-width: var(--measure);
+    margin-top: var(--space-3);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  .film__description.is-open {
+    opacity: 1;
+  }
+
+  /* Ember-wash fallback panel (§4 error state): 16:9, wash + drum-glow. */
+  .film__panel {
+    aspect-ratio: 16 / 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    background-color: var(--accent-subtle-bg);
+    background-image: var(--drum-glow);
+  }
+  .film__panel-title {
+    font-size: var(--step-h2);
+    line-height: var(--lh-heading);
+    color: var(--text-primary);
+  }
+  .film__panel-body {
+    color: var(--text-secondary);
+    font-size: var(--step-body);
+    line-height: var(--lh-body);
+    max-width: var(--measure);
+  }
+
+  /* No-JS: playback and the disclosure need script — hide the dead controls
+     and show the description in full, so nothing on the page is unreachable. */
+  :global(html.no-js) .film__controls,
+  :global(html.no-js) .film__disclosure-btn {
+    display: none;
+  }
+  :global(html.no-js) .film__description {
+    opacity: 1;
+  }
+  :global(html.no-js) .film__description[hidden] {
+    display: block;
+  }
+
+  /* Reduced motion: opacity fades stay (the permitted fallback); transforms
+     and hover colour shifts snap. The spinner keeps turning — it is status. */
+  @media (prefers-reduced-motion: reduce) {
+    .film__chevron,
+    .film__disclosure-btn,
+    .film__overlay-play {
+      transition: none;
+    }
   }
 </style>

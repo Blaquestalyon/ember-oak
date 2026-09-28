@@ -18,6 +18,16 @@ const state = await getResolvedContent();
 const media = mediaStatus();
 const c = state.content;
 
+// §5 flow 1: the hero AVIF is preloaded so it is in flight with the HTML.
+const heroSet = media.available.hero ? manifest.hero : null;
+const heroPreload = heroSet
+  ? {
+      srcset: heroSet.widths
+        .map((w) => `${heroSet.sources.avif[String(w)]} ${w}w`)
+        .join(', '),
+    }
+  : null;
+
 // JSON-LD Organization (§4 page-wide details). The email is \uXXXX-escaped so
 // the served HTML never contains the literal address (§6).
 const jsonLd =
@@ -38,6 +48,18 @@ const jsonLd =
   ogImage={media.ogCardPresent ? manifest.ogCard : null}
 >
   <Fragment slot="head">
+    {
+      heroPreload && (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imagesrcset={heroPreload.srcset}
+          imagesizes="100vw"
+          fetchpriority="high"
+        />
+      )
+    }
     <script type="application/ld+json" set:html={jsonLd} is:inline />
   </Fragment>
 

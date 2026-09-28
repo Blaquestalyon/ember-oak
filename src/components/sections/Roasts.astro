@@ -1,6 +1,19 @@
 ---
-/** FOUNDATION STUB — replaced by the roasts parcel. */
+/**
+ * Section B — Roasts (blueprint §4).
+ * Header (title + intro), then the cards — already validated, sorted by Sort
+ * Order then Name, filtered to Published, capped at 4 by src/lib/content.ts.
+ * Layout: 1 card → full width (photo 3:2); 2 cards → two columns at ≥900px,
+ * stacked below; 3–4 cards → the same two columns wrap into a 2×2 grid.
+ * Empty (no published rows): the §2 VOICE empty state in a --bg-surface panel.
+ * Loading: the page is server-rendered so data is always present at paint; the
+ * specced card skeleton ships as a hidden, documented block (below the grid)
+ * that is never displayed by default.
+ */
 import type { VisibleRoast } from '../../lib/content';
+import RoastCard from './RoastCard.astro';
+import ObfuscatedLink from '../ObfuscatedLink.astro';
+import { PackageOpen } from 'lucide-astro';
 
 interface Props {
   title: string;
@@ -8,7 +21,8 @@ interface Props {
   roasts: VisibleRoast[];
   email: string;
 }
-const { title, intro, roasts } = Astro.props;
+const { title, intro, roasts, email } = Astro.props;
+const solo = roasts.length === 1;
 ---
 
 <section id="roasts" class="roasts" data-reveal-group>
@@ -17,20 +31,47 @@ const { title, intro, roasts } = Astro.props;
   {
     roasts.length === 0 ? (
       <div class="roasts__empty reveal">
-        <h3>Nothing on the counter yet.</h3>
-        <p>Today's roasts appear here as soon as they're added to the sheet.</p>
+        <PackageOpen class="roasts__empty-icon" size={32} stroke-width={1.75} aria-hidden="true" />
+        <h3 class="roasts__empty-headline">Nothing on the counter yet.</h3>
+        <p class="roasts__empty-guidance">
+          Today's roasts appear here as soon as they're added to the sheet.
+        </p>
+        <div class="roasts__empty-cta">
+          <ObfuscatedLink
+            address={email}
+            label="Email us about this week's roast"
+            class="btn btn--primary"
+          />
+        </div>
       </div>
     ) : (
-      <ul class="roasts__grid">
+      <ul class:list={['roasts__grid', { 'roasts__grid--multi': roasts.length >= 2 }]}>
         {roasts.map((roast) => (
-          <li class="reveal">
-            <h3>{roast.name}</h3>
-            <p>{roast.tastingNotes}</p>
+          <li class="roasts__cell reveal">
+            <RoastCard roast={roast} solo={solo} />
           </li>
         ))}
       </ul>
     )
   }
+
+  <!--
+    Loading skeleton (§4 Section B "Loading"). The page is server-rendered, so
+    this block is hidden and never displayed by default — it exists so the
+    specced skeleton design ships and is verifiable: a 4:5 tinted block at
+    --bg-raised, a 60%-width title bar, a 40%-width notes bar and four
+    100%-width row bars, swept by a 1.4s shimmer of --accent-subtle-bg at 6%
+    opacity; under prefers-reduced-motion the shimmer is a static tint.
+  -->
+  <div class="roast-skeleton" hidden aria-hidden="true">
+    <div class="roast-skeleton__photo"></div>
+    <div class="roast-skeleton__bar roast-skeleton__bar--title"></div>
+    <div class="roast-skeleton__bar roast-skeleton__bar--notes"></div>
+    <div class="roast-skeleton__bar"></div>
+    <div class="roast-skeleton__bar"></div>
+    <div class="roast-skeleton__bar"></div>
+    <div class="roast-skeleton__bar"></div>
+  </div>
 </section>
 
 <style>
@@ -39,6 +80,12 @@ const { title, intro, roasts } = Astro.props;
     max-width: calc(var(--space-10) * 10);
     margin: 0 auto;
   }
+  @media (min-width: 1024px) {
+    .roasts {
+      padding-block: var(--space-10);
+    }
+  }
+
   .roasts__title {
     font-size: var(--step-display-l);
     line-height: var(--lh-display-l);
@@ -46,22 +93,109 @@ const { title, intro, roasts } = Astro.props;
   .roasts__intro {
     color: var(--text-secondary);
     font-size: var(--step-body-l);
+    line-height: var(--lh-body);
     max-width: 52ch;
     margin-top: var(--space-3);
   }
+
+  /* 1 card: one full-width column. 2+ cards: two columns at ≥900px (3–4 wrap
+     into a 2×2 grid), stacked in one column below. */
   .roasts__grid {
     list-style: none;
     padding: 0;
-    margin: var(--space-6) 0 0;
+    margin: var(--space-7) 0 0;
     display: grid;
-    gap: var(--space-6);
+    grid-template-columns: 1fr;
+    gap: var(--space-8) var(--space-7);
   }
+  @media (min-width: 900px) {
+    .roasts__grid--multi {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Empty state (§2 VOICE): centred block in a --bg-surface panel, hairline. */
   .roasts__empty {
-    margin-top: var(--space-6);
+    margin-top: var(--space-7);
     background: var(--bg-surface);
     box-shadow: var(--elev-hairline);
     border-radius: var(--radius-md);
-    padding: var(--space-7);
+    padding: var(--space-8) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+  }
+  .roasts__empty-icon {
+    width: var(--icon-lg);
+    height: var(--icon-lg);
+    color: var(--text-muted);
+  }
+  .roasts__empty-headline {
+    font-size: var(--step-h2);
+    line-height: var(--lh-heading);
+    margin-top: var(--space-4);
+  }
+  .roasts__empty-guidance {
+    color: var(--text-secondary);
+    font-size: var(--step-body);
+    line-height: var(--lh-body);
+    max-width: 52ch;
+    margin-top: var(--space-2);
+  }
+  .roasts__empty-cta {
+    margin-top: var(--space-5);
+  }
+
+  /* ---- Hidden loading skeleton (documented above; not shown by default). ---- */
+  .roast-skeleton {
+    position: relative;
+    overflow: hidden;
+    max-width: calc(var(--space-10) * 4);
+  }
+  .roast-skeleton__photo {
+    aspect-ratio: 4 / 5;
+    background: var(--bg-raised);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .roast-skeleton__bar {
+    height: var(--space-4);
+    margin-top: var(--space-3);
+    background: var(--bg-raised);
+    border-radius: var(--radius-sm);
+  }
+  .roast-skeleton__bar--title {
+    width: 60%;
+    height: var(--space-5);
+    margin-top: var(--space-5);
+  }
+  .roast-skeleton__bar--notes {
+    width: 40%;
+  }
+  .roast-skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--accent-subtle-bg) 6%, transparent) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%);
+    animation: roast-shimmer 1.4s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes roast-shimmer {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .roast-skeleton::after {
+      animation: none;
+      transform: none;
+      background: color-mix(in srgb, var(--accent-subtle-bg) 6%, transparent);
+    }
   }
 </style>

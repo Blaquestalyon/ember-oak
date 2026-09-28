@@ -1,6 +1,16 @@
 ---
-/** FOUNDATION STUB — replaced by the story/contact parcel. */
+/**
+ * Section E — Contact (§4). Centred, --space-10 vertical padding. The address
+ * is the call to action: an entity-encoded ObfuscatedLink (§6 — the served
+ * HTML never contains the literal address) with the ember underline, and a
+ * "Copy address" ghost button beside it that is hidden entirely without JS.
+ *
+ * The link's classes are GLOBAL (ObfuscatedLink renders via set:html), and the
+ * toast styles are global too (the toast is created by contact.ts at runtime).
+ */
 import ObfuscatedLink from '../ObfuscatedLink.astro';
+import Button from '../Button.astro';
+import { Copy } from 'lucide-astro';
 
 interface Props {
   title: string;
@@ -8,47 +18,189 @@ interface Props {
   email: string;
   copyLabel: string;
 }
-const { title, note, email } = Astro.props;
+const { title, note, email, copyLabel } = Astro.props;
 ---
 
 <section id="contact" class="contact" data-reveal-group>
   <h2 class="contact__title reveal">{title}</h2>
   <p class="contact__note reveal">{note}</p>
-  <p class="contact__address reveal">
-    <ObfuscatedLink address={email} class="contact__link" />
-  </p>
+  <div class="contact__cta reveal">
+    <ObfuscatedLink address={email} id="contact-address" class="contact-address-link" />
+    <Button id="copy-address" variant="ghost" class="js-only">
+      <Copy aria-hidden="true" />
+      {copyLabel}
+    </Button>
+  </div>
 </section>
+
+<script src="../../scripts/contact.ts"></script>
 
 <style>
   .contact {
     padding: var(--space-10) var(--space-5);
     text-align: center;
   }
+
   .contact__title {
     font-size: var(--step-display-l);
     line-height: var(--lh-display-l);
+    color: var(--text-primary);
   }
+
   .contact__note {
     color: var(--text-secondary);
     font-size: var(--step-body-l);
+    line-height: var(--lh-body);
     max-width: 52ch;
     margin: var(--space-3) auto 0;
   }
-  .contact__address {
+
+  .contact__cta {
     margin-top: var(--space-6);
-    font-size: var(--step-h2);
-    font-weight: 600;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3) var(--space-5);
   }
-  .contact :global(.contact__link) {
+
+  /*
+   * The address link — GLOBAL class because ObfuscatedLink renders via set:html.
+   * --step-h2 in Karla 600 with the 1px ember underline; on hover the underline
+   * thickens to 2px --accent-hover and drops 2px lower over --dur-fast.
+   * Focus-visible comes from the global 2px ember ring — nothing overrides it.
+   */
+  :global(.contact-address-link) {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--step-h2);
+    line-height: var(--lh-heading);
     color: var(--text-primary);
-    text-decoration: underline;
+    text-decoration-line: underline;
     text-decoration-color: var(--accent-base);
     text-decoration-thickness: var(--hairline);
     text-underline-offset: var(--space-1);
+    transition:
+      text-decoration-color var(--dur-fast) var(--ease-out),
+      text-decoration-thickness var(--dur-fast) var(--ease-out),
+      text-underline-offset var(--dur-fast) var(--ease-out);
   }
-  .contact :global(.contact__link:hover) {
+  :global(.contact-address-link:hover) {
     text-decoration-color: var(--accent-hover);
     text-decoration-thickness: var(--focus-ring);
     text-underline-offset: var(--space-2);
+  }
+  :global(.contact-address-link:active) {
+    text-decoration-color: var(--accent-pressed);
+  }
+
+  /* Lucide copy at 20px (§4: icons 20px inline). */
+  :global(#copy-address svg) {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+    flex: none;
+  }
+
+  /* No-JS: the copy button is hidden entirely; the address link still works. */
+  :global(html.no-js .js-only) {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.contact-address-link) {
+      transition: none;
+    }
+  }
+
+  /*
+   * ---- Toast (§4 Section E) — created by contact.ts into #toast-root. ----
+   * Global on purpose: the element never exists in a template, so scoping
+   * could not reach it. --bg-raised on the hairline elevation, a 3px semantic
+   * left edge, entering with a 12px rise + fade over --dur-base.
+   */
+  :global(.toast) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: calc(100vw - var(--space-8));
+    background: var(--bg-raised);
+    color: var(--text-primary);
+    font-size: var(--step-body);
+    line-height: var(--lh-body);
+    text-align: left;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--elev-hairline);
+    border-left: var(--toast-edge) solid var(--border-strong);
+    opacity: 0;
+    transition: opacity var(--dur-base) var(--ease-out);
+  }
+  :global(.toast--success) {
+    border-left-color: var(--success);
+  }
+  :global(.toast--warning) {
+    border-left-color: var(--warning);
+  }
+  :global(.toast--in) {
+    opacity: 1;
+  }
+  /* Exits ease in (§2 motion). */
+  :global(.toast:not(.toast--in)) {
+    transition-timing-function: var(--ease-in);
+  }
+
+  /* The 12px rise is motion-only; reduced motion keeps the opacity fade. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.toast) {
+      transform: translateY(var(--space-3));
+      transition:
+        opacity var(--dur-base) var(--ease-out),
+        transform var(--dur-base) var(--ease-out);
+    }
+    :global(.toast--in) {
+      transform: none;
+    }
+    :global(.toast:not(.toast--in)) {
+      transition-timing-function: var(--ease-in);
+    }
+  }
+
+  /* The address inside the warning toast can be long — never overflow 360px. */
+  :global(.toast__message) {
+    overflow-wrap: anywhere;
+  }
+
+  /* Close button: 40px hit target, pulled in so the toast stays compact. */
+  :global(.toast__close) {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-h);
+    height: var(--control-h);
+    margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-3)) calc(-1 * var(--space-2)) 0;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out);
+  }
+  :global(.toast__close:hover) {
+    color: var(--text-primary);
+    background: var(--bg-surface);
+  }
+  :global(.toast__close:active) {
+    color: var(--text-primary);
+    background: var(--bg-sunken);
+  }
+  :global(.toast__close svg) {
+    width: var(--space-4);
+    height: var(--space-4);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.toast__close) {
+      transition: none;
+    }
   }
 </style>

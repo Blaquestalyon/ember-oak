@@ -1,17 +1,38 @@
 ---
-/** FOUNDATION STUB — replaced by the story/contact parcel. */
+/**
+ * Section D — Story (§4). Full-bleed --bg-surface band with hairline top and
+ * bottom, content constrained to the 68ch measure and centred.
+ *
+ * Emphasis (§4/§6): the first exact occurrence of `emphasis` inside `body` is
+ * wrapped in <em> (Fraunces italic, --text-primary). The HTML is built here,
+ * server-side, from three escapeHtml'd text parts — the <em> is the only tag
+ * that can ever appear, and no owner-typed HTML is ever rendered. When the
+ * substring is absent (or empty), the whole body is escaped plain text.
+ */
+import { escapeHtml } from '../../lib/obfuscate';
+
 interface Props {
   title: string;
   body: string;
   emphasis: string;
 }
-const { title, body } = Astro.props;
+const { title, body, emphasis } = Astro.props;
+
+const index = emphasis.length > 0 ? body.indexOf(emphasis) : -1;
+const bodyHtml =
+  index === -1
+    ? escapeHtml(body)
+    : escapeHtml(body.slice(0, index)) +
+      '<em>' +
+      escapeHtml(emphasis) +
+      '</em>' +
+      escapeHtml(body.slice(index + emphasis.length));
 ---
 
 <section id="story" class="story" data-reveal-group>
   <div class="story__inner">
     <h2 class="story__title reveal">{title}</h2>
-    <p class="story__body reveal">{body}</p>
+    <p class="story__body reveal" set:html={bodyHtml} />
   </div>
 </section>
 
@@ -22,18 +43,37 @@ const { title, body } = Astro.props;
     border-bottom: var(--hairline) solid var(--border-hairline);
     padding: var(--space-9) var(--space-5);
   }
+
+  /* §2 density: section vertical rhythm --space-9 mobile, --space-10 ≥1024px. */
+  @media (min-width: 1024px) {
+    .story {
+      padding-block: var(--space-10);
+    }
+  }
+
   .story__inner {
     max-width: var(--measure);
     margin: 0 auto;
   }
+
   .story__title {
     font-size: var(--step-display-l);
     line-height: var(--lh-display-l);
+    color: var(--text-primary);
   }
+
   .story__body {
     color: var(--text-secondary);
     font-size: var(--step-body-l);
     line-height: var(--lh-body);
     margin-top: var(--space-5);
+  }
+
+  /* The emphasis clause arrives via set:html, so it needs a global selector. */
+  .story__body :global(em) {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    color: var(--text-primary);
   }
 </style>
