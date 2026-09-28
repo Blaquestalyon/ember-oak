@@ -18,11 +18,19 @@ function readEnv(): Env {
   const nodeEnv = process.env.NODE_ENV ?? 'development';
   const isProd = nodeEnv === 'production';
 
+  // SITE_URL (§10) with a host fallback: Railway publishes the generated
+  // domain as RAILWAY_PUBLIC_DOMAIN, so a fresh deploy has a canonical URL
+  // before the owner sets a custom one. SITE_URL, when set, always wins.
+  const siteUrlRaw =
+    process.env.SITE_URL?.trim() ||
+    (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '');
+
   const missing: string[] = [];
-  const required = ['AIRTABLE_API_KEY', 'AIRTABLE_BASE_ID', 'SITE_URL'] as const;
+  const required = ['AIRTABLE_API_KEY', 'AIRTABLE_BASE_ID'] as const;
   for (const name of required) {
     if (!process.env[name] || process.env[name]?.trim() === '') missing.push(name);
   }
+  if (!siteUrlRaw) missing.push('SITE_URL');
   if (isProd && missing.length > 0) {
     // Fail loudly at boot, naming every missing var (§10).
     throw new Error(
@@ -51,7 +59,7 @@ function readEnv(): Env {
     contentTable: process.env.AIRTABLE_CONTENT_TABLE?.trim() || 'Page Content',
     roastsTable: process.env.AIRTABLE_ROASTS_TABLE?.trim() || 'Roast Profiles',
     cacheTtlSeconds,
-    siteUrl: (process.env.SITE_URL?.trim() || 'http://localhost:4321').replace(/\/+$/, ''),
+    siteUrl: (siteUrlRaw || 'http://localhost:4321').replace(/\/+$/, ''),
     version,
   };
 }
