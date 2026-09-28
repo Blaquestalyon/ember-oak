@@ -1,0 +1,30 @@
+{
+  "acceptedMaster": {
+    "path": "assets/master/candidates/master-candidate-3.png",
+    "model": "nano_banana_pro",
+    "resolution": "2k",
+    "aspectRatio": "3:2",
+    "candidateIndex": 3,
+    "higgsfieldJobId": "4a58b1ee-7220-4cb6-94f7-53d4276deb46",
+    "date": "2026-09-28",
+    "acceptanceNotes": "Passes Bag Sheet + 7-point check; valve upper-centre-right noted as minor deviation, inherited consistently by all derived assets. See acceptance.md.",
+    "prompt": "Photorealistic product photograph of a single coffee bag standing on a dark oak counter, shot at eye level from a slight three-quarter angle, 3:2. The bag, exactly: a 340g (12oz) flat-bottom stand-up pouch with clearly visible side gussets, standing upright. Body is matte charcoal-kraft laminate, colour #2B2724 — matte, no gloss, no plastic sheen, no reflected softbox anywhere in the laminate. One horizontal ember-orange band (#E2662B) occupies the lower third of the bag face, unbroken, letterpress-debossed into the paper. Centred on the band, the wordmark \"EMBER & OAK\" in condensed letterspaced capitals, warm off-white, one single line, correctly spelled. Directly above the wordmark, still on the orange band, a single small oak-leaf-and-flame line mark (a flame outline containing an oak leaf vein), one consistent line weight, warm off-white, small — about 26mm tall. One 20mm round matte-black one-way degassing valve placed in the UPPER-RIGHT QUADRANT of the bag face, offset toward the right edge. The top of the bag is a roll-top closure folded twice, creased, with a copper tin-tie clearly visible at the fold. The bag carries NO other printing: no weight text, no tagline, no small print — only the wordmark and the mark. The room: a dim brick-walled roastery at 5:40 in the morning, before sunrise, a drum roaster softly out of focus in the far background. The counter is dark oak with open grain, matte, no varnish highlights. Lighting: exactly one warm key light, low, from the left at roughly 30 degrees, at countertop height — no fill light, no rim light from behind, one long soft shadow falling to the right that dies into the dark background. The background is deep warm near-black (#0B0A09 to #131110), never pure black, never blue. Must not appear: no cup of coffee, no steam, no hand-drawn bean illustration, no burlap sack, no chalkboard, no people, no hands, no text anywhere other than \"EMBER & OAK\", no watermark."
+  },
+  "derived": {
+    "roastLight": {
+      "path": "assets/master/roast-light-master.png",
+      "higgsfieldJobId": "56c9a874-eea4-4dfa-bc76-64ca64089c7b",
+      "referenceJobId": "4a58b1ee-7220-4cb6-94f7-53d4276deb46"
+    },
+    "roastDark": {
+      "path": "assets/master/roast-dark-master.png",
+      "higgsfieldJobId": "be532fd2-1332-4c52-af05-9344da280f2b",
+      "referenceJobId": "4a58b1ee-7220-4cb6-94f7-53d4276deb46"
+    },
+    "filmSource": {
+      "path": "assets/master/film-source.png",
+      "higgsfieldJobId": "a72afb82-8650-4363-a331-060aa30d856a",
+      "referenceJobId": "4a58b1ee-7220-4cb6-94f7-53d4276deb46"
+    }
+  }
+}

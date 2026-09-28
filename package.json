@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/media-pipeline.mjs && astro build",
     "preview": "astro preview",
     "start": "node ./dist/server/entry.mjs",
     "test": "vitest run",
@@ -30,6 +30,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.63.0",
+    "sharp": "0.35.5",
     "typescript": "5.9.3",
     "vitest": "3.2.7"
   }

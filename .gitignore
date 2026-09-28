@@ -16,3 +16,6 @@ node_modules/
 
 # OS noise
 .DS_Store
+
+# Build-generated media derivatives (pipeline output)
+/media/
