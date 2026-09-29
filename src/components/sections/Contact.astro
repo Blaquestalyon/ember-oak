@@ -36,9 +36,17 @@ const { title, note, email, copyLabel } = Astro.props;
 <script src="../../scripts/contact.ts"></script>
 
 <style>
+  /* §2 density: section vertical rhythm --space-9 on mobile, --space-10 on
+     desktop — the same step every section uses, so no section gap ever sits a
+     near-miss away from its neighbours. */
   .contact {
-    padding: var(--space-10) var(--space-5);
+    padding: var(--space-9) var(--space-5);
     text-align: center;
+  }
+  @media (min-width: 1024px) {
+    .contact {
+      padding-block: var(--space-10);
+    }
   }
 
   .contact__title {

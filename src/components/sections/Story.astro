@@ -51,8 +51,12 @@ const bodyHtml =
     }
   }
 
+  /* The band is full-bleed; its content sits on the page's shared container
+     (--space-10 × 10 minus the section's own gutters) so the title and body
+     hang on the same left spine as every other section. The body itself is
+     still constrained to the 68ch measure (§4). */
   .story__inner {
-    max-width: var(--measure);
+    max-width: calc(var(--space-10) * 10 - var(--space-5) * 2);
     margin: 0 auto;
   }
 
@@ -66,6 +70,7 @@ const bodyHtml =
     color: var(--text-secondary);
     font-size: var(--step-body-l);
     line-height: var(--lh-body);
+    max-width: var(--measure);
     margin-top: var(--space-5);
   }
 

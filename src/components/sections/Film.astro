@@ -182,9 +182,13 @@ const posterLargestJpeg = poster
 <script src="../../scripts/film.ts"></script>
 
 <style>
-  /* Section rhythm (§2 density): 96px mobile, 128px ≥1024px. */
+  /* Section rhythm (§2 density): 96px mobile, 128px ≥1024px. The section sits
+     on the page's shared container (--space-10 × 10, like the hero and roasts)
+     so its left-set text shares the one page spine at every width. */
   .film {
     padding: var(--space-9) var(--space-5);
+    max-width: calc(var(--space-10) * 10);
+    margin-inline: auto;
   }
   @media (min-width: 1024px) {
     .film {
@@ -193,20 +197,18 @@ const posterLargestJpeg = poster
     }
   }
 
-  /* 1100px, centred, from tokens: 128×8 + 48 + 24 + 4 = 1100. */
-  .film__inner {
-    max-width: calc(var(--space-10) * 8 + var(--space-7) + var(--space-5) + var(--space-1));
-    margin-inline: auto;
-  }
-
   .film__title {
     font-size: var(--step-display-l);
     line-height: var(--lh-display-l);
     color: var(--text-primary);
   }
 
+  /* The frame keeps its §4 pin — max-width 1100px, centred — from tokens:
+     128×8 + 48 + 24 + 4 = 1100. Title, controls and disclosure stay on the
+     page spine at the container's left edge. */
   .film__frame {
-    margin-top: var(--space-6);
+    max-width: calc(var(--space-10) * 8 + var(--space-7) + var(--space-5) + var(--space-1));
+    margin: var(--space-6) auto 0;
   }
 
   /* The 16:9 stage inside the counter-edge frame. */
