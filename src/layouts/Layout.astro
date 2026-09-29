@@ -23,7 +23,6 @@ interface Props {
   path: string;
   /** Open Graph image public path, when available. */
   ogImage?: string | null;
-  withSectionNav?: boolean;
 }
 const {
   title,
@@ -33,7 +32,6 @@ const {
   footerSocial,
   path,
   ogImage = null,
-  withSectionNav = true,
 } = Astro.props;
 
 const canonical = `${env.siteUrl}${path}`;
@@ -70,7 +68,7 @@ const canonical = `${env.siteUrl}${path}`;
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
 
-    <Header email={email} withSectionNav={withSectionNav} />
+    <Header email={email} />
 
     <main id="main">
       <slot />

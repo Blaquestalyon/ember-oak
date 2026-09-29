@@ -9,10 +9,8 @@ import ObfuscatedLink from './ObfuscatedLink.astro';
 interface Props {
   /** Contact address for the "Email us" action (resolved content). */
   email: string;
-  /** Show section links (only meaningful on the main page). */
-  withSectionNav?: boolean;
 }
-const { email, withSectionNav = true } = Astro.props;
+const { email } = Astro.props;
 ---
 
 <header class="site-header" id="site-header">
@@ -30,21 +28,9 @@ const { email, withSectionNav = true } = Astro.props;
     </a>
 
     <nav class="site-header__nav" aria-label="Sections">
-      {
-        withSectionNav && (
-          <>
-            <a class="site-header__link" href="/#roasts">
-              Roasts
-            </a>
-            <a class="site-header__link" href="/#film">
-              In the drum
-            </a>
-            <a class="site-header__link" href="/#story">
-              Story
-            </a>
-          </>
-        )
-      }
+      <a class="site-header__link" href="/#roasts">Roasts</a>
+      <a class="site-header__link" href="/#film">In the drum</a>
+      <a class="site-header__link" href="/#story">Story</a>
       <ObfuscatedLink address={email} label="Email us" class="btn btn--primary site-header__cta" />
     </nav>
   </div>

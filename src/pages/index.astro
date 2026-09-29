@@ -10,7 +10,7 @@ import Film from '../components/sections/Film.astro';
 import Story from '../components/sections/Story.astro';
 import Contact from '../components/sections/Contact.astro';
 import { getResolvedContent } from '../lib/content';
-import { mediaStatus, manifest } from '../lib/media';
+import { mediaStatus, manifest, toSrcset } from '../lib/media';
 import { toJsonEscapes } from '../lib/obfuscate';
 import { env } from '../lib/env';
 
@@ -20,13 +20,7 @@ const c = state.content;
 
 // §5 flow 1: the hero AVIF is preloaded so it is in flight with the HTML.
 const heroSet = media.available.hero ? manifest.hero : null;
-const heroPreload = heroSet
-  ? {
-      srcset: heroSet.widths
-        .map((w) => `${heroSet.sources.avif[String(w)]} ${w}w`)
-        .join(', '),
-    }
-  : null;
+const heroPreload = heroSet ? { srcset: toSrcset(heroSet.sources.avif, heroSet.widths) } : null;
 
 // JSON-LD Organization (§4 page-wide details). The email is \uXXXX-escaped so
 // the served HTML never contains the literal address (§6).
