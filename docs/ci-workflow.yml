@@ -1,0 +1,55 @@
+# §12 test 53: build + Vitest + Playwright + axe on every push.
+# A red run here is the deploy-blocking signal (Railway's "wait for CI"
+# check-suites setting consumes it; see decisions.md).
+#
+# ⚠️ STAGED COPY. The push channel that maintains this repository cannot write
+# .github/workflows/* (its token lacks workflow permissions — decisions.md
+# entry 18). The OWNER copies this file, byte for byte, to:
+#     .github/workflows/ci.yml
+# using GitHub's own web editor. Once the copy exists there, GitHub runs it on
+# every push; this staged file then serves only as the reviewed source.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Dummy runtime config: content resolution falls back to the committed
+      # copy (§6 designed state); no secret is ever needed to test this app.
+      AIRTABLE_API_KEY: ci-dummy-key
+      AIRTABLE_BASE_ID: ci-dummy-base
+      SITE_URL: http://localhost:4321
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # ffmpeg encodes the roast-clip renditions in the media pipeline (§8).
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Token lint (§12 test 47)
+        run: npm run lint:tokens
+
+      - name: Build (media pipeline + astro)
+        run: npm run build
+
+      - name: Unit tests (Vitest)
+        run: npm test
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E + axe (Playwright)
+        run: npm run test:e2e

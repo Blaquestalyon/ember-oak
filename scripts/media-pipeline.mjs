@@ -128,7 +128,11 @@ const manifest = {
 };
 
 // --- Hero: crop of the accepted master to 3:2 (§8 step 2). ---
-const masterPath = join(MASTER, 'candidates', 'master-candidate-3.png');
+// §8 pins the accepted master's canonical name as assets/master/master-bag.png;
+// the candidate path is kept as a fallback for trees from before the rename.
+const canonicalMaster = join(MASTER, 'master-bag.png');
+const candidateMaster = join(MASTER, 'candidates', 'master-candidate-3.png');
+const masterPath = existsSync(canonicalMaster) ? canonicalMaster : candidateMaster;
 if (existsSync(masterPath)) {
   manifest.hero = await buildImageSet(masterPath, 'hero', HERO_WIDTHS, [3, 2]);
   // OG card: 1200×630 crop from the master (§4 page-wide details).
