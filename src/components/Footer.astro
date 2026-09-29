@@ -63,11 +63,16 @@ const year = new Date().getFullYear();
 <style>
   .site-footer {
     border-top: var(--hairline) solid var(--border-hairline);
-    padding: var(--space-8) var(--space-5);
+    /* Top padding one step below the section gap (48 vs 96/128) so the
+       contact→footer gap reads as a deliberate smaller step, never a near
+       miss of the section rhythm. */
+    padding: var(--space-7) var(--space-5) var(--space-8);
   }
 
   .site-footer__inner {
-    max-width: calc(var(--space-10) * 10);
+    /* The page's shared container minus the footer's own gutters, so the
+       footer text sits on the same left spine as the header and sections. */
+    max-width: calc(var(--space-10) * 10 - var(--space-5) * 2);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -79,7 +84,10 @@ const year = new Date().getFullYear();
     align-items: center;
     gap: var(--space-3);
     color: var(--text-primary);
-    margin-bottom: var(--space-2);
+    /* With the column's --space-3 gap this yields a --space-6 step to the
+       first line — a clean 2× of the line rhythm, never a near-miss beside
+       the sections' --space-5 steps. */
+    margin-bottom: var(--space-3);
   }
 
   .site-footer__wordmark {

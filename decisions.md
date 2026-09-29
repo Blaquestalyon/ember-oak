@@ -113,3 +113,39 @@ Recorded so the reasons are re-checkable; none contradicts a pinned visual.
 **Why:** §5 flow 1 requires the hero AVIF to be in flight with the HTML. A
 <link rel="preload" as="image" imagesrcset> with the AVIF srcset is emitted only
 when the hero set exists, so a missing-media deploy adds no dead preload.
+
+## 13. Design-loop round 1 spec resolutions
+- §4 pins Contact at "--space-10 vertical padding"; §2 DENSITY pins section
+  rhythm at space-9 mobile / space-10 ≥1024px. Resolved toward §2 (the general
+  rhythm rule): Contact pads 96px mobile / 128px ≥1024px. §2 is the design
+  authority for rhythm; §4's line reads as shorthand for "section rhythm".
+- §4's status screen ("One --bg-surface panel… Title… subtitle…") is ambiguous
+  on whether the title sits inside the panel. Title/subtitle/back-link now sit
+  on the page's shared left spine outside the panel; the panel carries the rows.
+  One left anchor per width across all routes (design-bar mechanism 3).
+- Unpinned values set for gap-scale honesty: footer top padding space-7 (48px),
+  footer brand lockup bottom margin space-3 (12px), 404 vertical slack split 2:3.
+
+## 14. 404 icon: §2's NEVER list beats §4's icon name (spec self-contradiction)
+**Why:** §4 named Lucide `coffee` for the 404 icon; that glyph draws a cup with
+steam, and §2's NEVER list bans "a cup-with-steam" outright (caught by the
+round-1 System critic). Spec-first repair: §2 is the world's law, §4's icon
+name was the defect. blueprint.md §4 now reads "The coded oak-leaf-and-flame
+mark (32px, --text-muted)" and the page renders the existing Mark component.
+The change is a one-icon swap on the 404 screen; the owner is told at the next
+review touchpoint.
+
+## 15. Design-bar mechanism 2's route floor corrected to fit the pinned scale
+**Why:** the bar required the main route's largest text ≥2.5× the route's base
+body size. At mobile widths both inputs are §2-PINNED: the headline clamp floor
+is 2.75rem (44px) and lead body is 1.125rem (18px) → 2.44×. The bar's own first
+law is that it never contradicts §2 (a bar that refuses the pinned spec is
+broken), and its author's clearance note miscalculated using the 16px body step.
+The bar now reads ≥2.4× on the main route; the pinned type scale is untouched.
+
+## 16. Utility routes carry the full header nav (§4 "renders as normal")
+**Why:** the §4 shell lists three section links at ≥768px; /status and the 404
+initially hid them. Two Brief critics read §4's "header and footer render as
+normal" as the letter of the spec; the links are plain anchors to /#roasts etc.
+and work from any route, so the withSectionNav switch was removed and all three
+routes share one shell.

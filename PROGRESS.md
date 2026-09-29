@@ -2,27 +2,24 @@
 
 ## Done
 - Airtable base created and fully seeded (owner confirmed 21 content rows; 3 roasts).
-- Foundation, all five sections, status + 404 pages: built, integrated, verified.
-- Media: four masters generated on the owner's Higgsfield (acceptance in
-  assets/master/), raw clip supplied by the owner; build-time pipeline produces
-  derivatives + film renditions (ffmpeg via railpack.json buildAptPackages —
-  Railway's builder is Railpack and ignores nixpacks.toml, which stays for
-  portability to Nixpacks hosts).
-- DEPLOYED AND VERIFIED LIVE at https://ember-oak-production.up.railway.app:
-  health ok, contentSource airtable, 2 roasts published, 4 of 4 media present,
-  hero/cards/notes/emphasis/status/404/robots/sitemap all confirmed on the
-  real address, address entity-encoded (no literal email in served HTML).
-- Unit tests (21) for validation, obfuscation, rate limiting — all green.
+- Foundation, all five sections, status + 404, tests (21 green): built, integrated, pushed.
+- Media: four masters accepted (assets/master/), owner-supplied raw clip, build-time
+  derivative pipeline (ffmpeg via railpack.json).
+- DEPLOYED + VERIFIED LIVE: https://ember-oak-production.up.railway.app (health ok,
+  Live sheet, 2 roasts, 4 of 4 media, all voice strings, no literal email).
+- REVIEW QUESTION closed: owner confirmed nothing is missing.
+- DESIGN LOOP pass 1 complete (3 rounds × 3 fresh critics):
+  · R1: Brief PASS; Craft FAIL (bar floor vs pinned scale — bar corrected, entry 15);
+    System FAIL (404 cup icon — §2 NEVER wins, §4 corrected, Mark swapped in, entry 14).
+  · R2: all three PASS.
+  · R3 (after utility-route nav fix, entry 16): all three PASS with measurements.
+  Changes: one page spine at every width (film/story/footer/status realigned),
+  honest gap scale (contact rhythm, footer pad, 404 2:3 slack), 404 mark, utility nav.
 
 ## In progress
-- Wiring phase: review question with the owner next, then the design loop,
-  then the handoff.
+- Owner accept-or-continue question on the live site (design pass 1 done).
 
 ## Next
-- Review question (free text; act on anything missing; held_request for new asks).
-- Design loop: bar author → 1 builder + 3 fresh critics × 3 rounds → owner
-  accept-or-continue. Push after each 3-round pass (tree must build first —
-  pushes redeploy the live site).
-- Handoff: report_progress milestone with handoff_md (live URL, Airtable base
-  appuuOpZoIhlCeRvs, repo Blaquestalyon/ember-oak, costs ~$5/mo Railway,
-  no logins — owner edits words in Airtable; rollback via Railway deploys).
+- If accepted: HANDOFF (report_progress milestone + handoff_md). If more rounds:
+  another 3-round pass with fresh critics.
+- Deploy note: every push redeploys the live site; prove the build first.

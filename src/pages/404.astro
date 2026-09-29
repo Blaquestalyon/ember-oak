@@ -3,11 +3,13 @@
  * Page Not Found (§4): any unmatched path, 404 status.
  * Full-height centred block with the drum-glow radial; header and footer
  * render as normal so the wordmark is always a way home.
+ * Icon: the coded oak-leaf-and-flame mark — §2's NEVER list bans a
+ * cup-with-steam, which is what Lucide's coffee glyph draws (see decisions.md).
  * (JSON Accept handling is in the middleware.)
  */
-import { Coffee } from 'lucide-astro';
 import Layout from '../layouts/Layout.astro';
 import Button from '../components/Button.astro';
+import Mark from '../components/Mark.astro';
 import { getResolvedContent } from '../lib/content';
 
 Astro.response.status = 404;
@@ -23,12 +25,11 @@ const c = state.content;
   footerLine={c['footer.line']!}
   footerSocial={c['footer.social']!}
   path="/404"
-  withSectionNav={false}
 >
   <section class="not-found">
     <div class="not-found__glow" aria-hidden="true"></div>
     <div class="not-found__inner">
-      <Coffee class="not-found__icon" aria-hidden="true" />
+      <Mark class="not-found__icon" />
       <h1 class="not-found__title">That page went cold.</h1>
       <p class="not-found__body">There's only one page here, and it's this way.</p>
       <Button variant="primary" href="/">Back to the roastery</Button>
@@ -41,10 +42,22 @@ const c = state.content;
     position: relative;
     min-height: calc(100svh - var(--header-h) * 2 - var(--space-10));
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: var(--space-9) var(--space-5);
     overflow: hidden;
+  }
+
+  /* Vertical slack splits 2:3 — the block rides slightly above centre, so the
+     gap above it and the (footer-bearing) gap below it are a clear step apart
+     at every viewport height, never a near-miss pair. */
+  .not-found::before {
+    content: '';
+    flex: 2;
+  }
+  .not-found::after {
+    content: '';
+    flex: 3;
   }
 
   .not-found__glow {

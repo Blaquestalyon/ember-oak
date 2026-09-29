@@ -121,26 +121,25 @@ if (!failed && state && media) {
   footerLine={footerLine}
   footerSocial={footerSocial}
   path="/status"
-  withSectionNav={false}
 >
   <section class="status">
-    <div class="status__panel">
-      {
-        failed ? (
-          <>
-            <h1 class="status__title">We can't read our own status.</h1>
-            <p class="status__subtitle">
-              The site itself may still be fine — open the front page to check. If it's down too,
-              redeploy the last good version from your hosting dashboard.
-            </p>
-          </>
-        ) : (
-          <>
-            <h1 class="status__title">Site status</h1>
-            <p class="status__subtitle">
-              Edits you make in the sheet appear on the site within 60 seconds. Refresh this page
-              to check.
-            </p>
+    {
+      failed ? (
+        <>
+          <h1 class="status__title">We can't read our own status.</h1>
+          <p class="status__subtitle">
+            The site itself may still be fine — open the front page to check. If it's down too,
+            redeploy the last good version from your hosting dashboard.
+          </p>
+        </>
+      ) : (
+        <>
+          <h1 class="status__title">Site status</h1>
+          <p class="status__subtitle">
+            Edits you make in the sheet appear on the site within 60 seconds. Refresh this page
+            to check.
+          </p>
+          <div class="status__panel">
             <dl class="status__rows">
               {rows.map((row) => (
                 <div class="status__row">
@@ -163,30 +162,25 @@ if (!failed && state && media) {
                 </div>
               ))}
             </dl>
-          </>
-        )
-      }
-      <p class="status__back">
-        <a href="/">Back to the site</a>
-      </p>
-    </div>
+          </div>
+        </>
+      )
+    }
+    <p class="status__back">
+      <a href="/">Back to the site</a>
+    </p>
   </section>
 </Layout>
 
 <style>
+  /* The utility page sits on the same shared container as every other route,
+     so its title, subtitle and back link hang on the one page spine; only the
+     rows live inside the panel (their labels form the panel's own interior
+     anchor, like any repeated group). */
   .status {
     padding: var(--space-9) var(--space-5);
-    display: flex;
-    justify-content: center;
-  }
-
-  .status__panel {
-    width: 100%;
-    max-width: calc(var(--space-10) * 5);
-    background: var(--bg-surface);
-    box-shadow: var(--elev-hairline);
-    border-radius: var(--radius-md);
-    padding: var(--space-7) var(--space-6);
+    max-width: calc(var(--space-10) * 10);
+    margin-inline: auto;
   }
 
   .status__title {
@@ -199,10 +193,20 @@ if (!failed && state && media) {
     color: var(--text-secondary);
     font-size: var(--step-body);
     line-height: var(--lh-body);
+    max-width: var(--measure);
+  }
+
+  .status__panel {
+    margin-top: var(--space-6);
+    max-width: calc(var(--space-10) * 5);
+    background: var(--bg-surface);
+    box-shadow: var(--elev-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-6);
   }
 
   .status__rows {
-    margin: var(--space-6) 0 0;
+    margin: 0;
   }
 
   .status__row {
