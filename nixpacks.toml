@@ -1,0 +1,4 @@
+# Railway/Nixpacks build config: ffmpeg is needed at build time to encode the
+# roast clip renditions (blueprint §8 step 7). sharp comes from npm.
+[phases.setup]
+nixPkgs = ["...", "ffmpeg"]

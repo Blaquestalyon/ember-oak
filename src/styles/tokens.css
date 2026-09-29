@@ -1,0 +1,125 @@
+/*
+ * Ember & Oak — design tokens (blueprint §2, verbatim values).
+ * Every visual value in the app comes from this file through Tailwind's theme.
+ * No raw hex and no raw px in any component file; scripts/lint-tokens.mjs enforces it.
+ */
+:root {
+  /* Color — surfaces */
+  --bg-base: #0B0A09;
+  --bg-surface: #131110;
+  --bg-raised: #1C1917;
+  --bg-sunken: #060505;
+
+  /* Color — borders */
+  --border-hairline: #2A2320;
+  --border-strong: #3A302A;
+
+  /* Color — text */
+  --text-primary: #F5EFE7;
+  --text-secondary: #C9BDB1;
+  --text-muted: #948579;
+
+  /* Color — accent ramp (ember) */
+  --accent-subtle-bg: #2B1409;
+  --accent-hover: #F07A3C;
+  --accent-base: #E2662B;
+  --accent-pressed: #B84E1D;
+  --accent-text: #F2854A;
+  --accent-text-on-accent: #14100D;
+
+  /* Color — world */
+  --oak: #5A3A26;
+  --char: #4A2E1F;
+  --bean-green: #7E8B5A;
+
+  /* Color — semantic */
+  --success: #6FB07A;
+  --warning: #E0A94A;
+  --danger: #E0684E;
+  --info: #7FA6C9;
+
+  /* Type — families */
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-body: 'Karla Variable', system-ui, sans-serif;
+
+  /* Type — scale */
+  --step-display-xl: clamp(2.75rem, 7.5vw, 6rem);
+  --step-display-l: clamp(2rem, 4.5vw, 3.5rem);
+  --step-h2: clamp(1.625rem, 3vw, 2.25rem);
+  --step-h3: 1.375rem;
+  --step-body-l: 1.125rem;
+  --step-body: 1rem;
+  --step-caption: 0.875rem;
+  --step-label: 0.75rem;
+
+  /* Type — line heights and measure */
+  --lh-tight: 1.08;
+  --lh-display-l: 1.12;
+  --lh-heading: 1.18;
+  --lh-h3: 1.2;
+  --lh-body: 1.6;
+  --lh-caption: 1.5;
+  --lh-label: 1.4;
+  --measure: 68ch;
+  --track-label: .14em;
+  --track-wordmark: .18em;
+
+  /* Spacing — 4px grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* Elevation — borders only, plus the one ember glow */
+  --elev-hairline: inset 0 1px 0 rgba(245, 239, 231, .05), 0 0 0 1px var(--border-hairline);
+  --elev-glow: 0 0 40px -12px rgba(226, 102, 43, .45);
+
+  /* Motion */
+  --dur-fast: 140ms;
+  --dur-base: 220ms;
+  --dur-slow: 280ms;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-in: cubic-bezier(.4, 0, 1, 1);
+
+  /* Z-index */
+  --z-base: 0;
+  --z-media: 10;
+  --z-header: 100;
+  --z-toast: 200;
+
+  /* Component metrics (4px grid) */
+  --header-h: 64px;
+  --header-h-lg: 72px;
+  --control-h: 40px;
+  --hit-target: 44px;
+  --chip-h: 24px;
+  --dot: 8px;
+  --hairline: 1px;
+  --focus-ring: 2px;
+  --icon-sm: 20px;
+  --icon-md: 24px;
+  --icon-lg: 32px;
+  --mark-size: 22px;
+  --play-overlay: 56px;
+  --oak-rule-w: 120px;
+  --toast-edge: 3px;
+  --tip-glow-size: 12px;
+
+  /* Derived washes (from tokens above, never new colors) */
+  --scrim-hero: linear-gradient(180deg, rgba(11, 10, 9, .75) 0%, rgba(11, 10, 9, .25) 38%, rgba(11, 10, 9, .88) 100%);
+  --drum-glow: radial-gradient(60% 45% at 18% 88%, var(--accent-subtle-bg) 0%, transparent 70%);
+  --header-scrim: rgba(11, 10, 9, .72);
+  --highlight-inset: rgba(245, 239, 231, .05);
+}
