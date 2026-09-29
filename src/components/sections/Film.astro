@@ -15,7 +15,7 @@
  */
 import { Play, Pause, RotateCcw, ChevronDown } from 'lucide-astro';
 import CounterEdgeFrame from '../CounterEdgeFrame.astro';
-import { manifest, mediaStatus } from '../../lib/media';
+import { manifest, mediaStatus, toSrcset } from '../../lib/media';
 
 interface Props {
   title: string;
@@ -41,9 +41,6 @@ const sourceMedia = `(min-width: ${SOURCE_MIN_W}px)`;
 const FRAME_MAX_W = 1100;
 const posterSizes = `(min-width: ${FRAME_MAX_W + 48}px) ${FRAME_MAX_W}px, 100vw`;
 
-function toSrcset(sources: Record<string, string>, widths: number[]): string {
-  return widths.map((w) => `${sources[String(w)]} ${w}w`).join(', ');
-}
 const poster = film?.poster ?? null;
 const posterAvif = poster ? toSrcset(poster.sources.avif, poster.widths) : '';
 const posterWebp = poster ? toSrcset(poster.sources.webp, poster.widths) : '';
