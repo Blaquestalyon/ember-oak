@@ -117,6 +117,14 @@ async function fetchWholeTable(table: string, signal: AbortSignal): Promise<unkn
   return records;
 }
 
+/** Keep only the records a schema accepts (invalid rows are dropped, never fatal). */
+function parseValid<T>(schema: z.ZodType<T>, records: unknown[]): T[] {
+  return records.flatMap((record) => {
+    const parsed = schema.safeParse(record);
+    return parsed.success ? [parsed.data] : [];
+  });
+}
+
 /**
  * Read both tables. Throws AirtableAuthError on a rejected key,
  * or a generic Error when Airtable stays unreachable after retries.
@@ -132,15 +140,10 @@ export async function readSnapshot(): Promise<AirtableSnapshot> {
       fetchWholeTable(env.contentTable, controller.signal),
       fetchWholeTable(env.roastsTable, controller.signal),
     ]);
-    const content = contentRaw
-      .map((r) => contentRecordSchema.safeParse(r))
-      .filter((r): r is { success: true; data: ContentRecord } => r.success)
-      .map((r) => r.data);
-    const roasts = roastsRaw
-      .map((r) => roastRecordSchema.safeParse(r))
-      .filter((r): r is { success: true; data: RoastRecord } => r.success)
-      .map((r) => r.data);
-    return { content, roasts };
+    return {
+      content: parseValid(contentRecordSchema, contentRaw),
+      roasts: parseValid(roastRecordSchema, roastsRaw),
+    };
   } finally {
     clearTimeout(timeout);
   }

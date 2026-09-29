@@ -11,17 +11,8 @@ export const GET: APIRoute = async () => {
     source: state.source,
     fetchedAt: state.lastFetchedAt,
     content: state.content,
-    roasts: state.roasts.map((r) => ({
-      name: r.name,
-      roastLevel: r.roastLevel,
-      origin: r.origin,
-      tastingNotes: r.tastingNotes,
-      process: r.process,
-      altitude: r.altitude,
-      batchSize: r.batchSize,
-      imageSlug: r.imageSlug,
-      imageAlt: r.imageAlt,
-    })),
+    // VisibleRoast is exactly the §7 wire shape (nine fields, in order).
+    roasts: state.roasts,
   };
   return new Response(JSON.stringify(body), {
     status: 200,

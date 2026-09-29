@@ -38,6 +38,21 @@ export interface MediaManifest {
 
 export const manifest = rawManifest as unknown as MediaManifest;
 
+/**
+ * srcset string for one format's rendition map across the rendered widths,
+ * e.g. "/media/hero-640.abc.avif 640w, /media/hero-1024.def.avif 1024w".
+ * Shared by the hero, the roast cards, the film poster and the hero preload.
+ */
+export function toSrcset(sources: Record<string, string>, widths: number[]): string {
+  return widths
+    .map((w) => {
+      const path = sources[String(w)];
+      return path ? `${path} ${w}w` : null;
+    })
+    .filter((entry): entry is string => entry !== null)
+    .join(', ');
+}
+
 /** The four media sets the site expects (§4): hero, two roast stills, the film. */
 const SET_NAMES = ['hero', 'roastLight', 'roastDark', 'film'] as const;
 
@@ -61,12 +76,10 @@ function setFiles(name: (typeof SET_NAMES)[number]): string[] {
  * Media files live in the repo's media/ directory (served by the middleware),
  * so public paths like "/media/x.avif" map to "<cwd>/media/x.avif".
  */
-function mediaRoot(): string {
-  return join(process.cwd(), 'media');
-}
+export const MEDIA_ROOT = join(process.cwd(), 'media');
 
 function toDiskPath(publicPath: string): string {
-  return join(mediaRoot(), publicPath.replace(/^\/media\//, ''));
+  return join(MEDIA_ROOT, publicPath.replace(/^\/media\//, ''));
 }
 
 export interface MediaStatus {
