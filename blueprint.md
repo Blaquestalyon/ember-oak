@@ -480,7 +480,7 @@ Every prompt embeds this verbatim. It is the single source of truth for what "th
 
 **Three-way duty split**
 
-- *Build agents:* read the live model catalogue; run the whole pipeline above; run the 7-point check on every asset; encode with `ffmpeg`; generate derivatives with `sharp`; commit media into `public/media/` and the regeneration kit into `assets/master/`; wire every asset into §4's markup with correct `srcset`, `sizes`, intrinsic dimensions and alt text.
+- *Build agents:* read the live model catalogue; run the whole pipeline above; run the 7-point check on every asset; encode with `ffmpeg`; generate derivatives with `sharp`; commit media into the repo's `media/` directory (the app serves it at the same public `/media/*` URLs with the §7 cache headers) and the regeneration kit into `assets/master/`; wire every asset into §4's markup with correct `srcset`, `sizes`, intrinsic dimensions and alt text.
 - *Wired after deploy against the live URL:* nothing for Higgsfield (no webhook, no runtime key). The post-deploy check is simply: open the live URL, confirm all four assets render and `/status` reports "4 of 4 present".
 - *Only the owner can do — **"Your part"** checklist:*
   1. Click **Connect** and sign in to Higgsfield (one click; there is no key to copy).
@@ -522,7 +522,7 @@ Created by the build: base **"Ember & Oak — Site Content"**, two tables per §
 | Hardening | Header + rate-limit middleware (helmet-equivalent, `express-rate-limit`-equivalent) | §7's headers and limits. |
 | Testing | **Playwright** + **axe-core** + **Vitest** | §12 runs in CI on every push. |
 | Charts | none | This app displays no quantitative series; a chart library would be dead weight. |
-| Hosting | **Railway**, one web service, Node 20 | Binds `PORT`, restarts on crash, keeps previous deploys for one-click rollback. |
+| Hosting | **Railway**, one web service, Node 22 | Binds `PORT`, restarts on crash, keeps previous deploys for one-click rollback. |
 
 VibeStack Builder builds this on **GitHub + Railway + Airtable**, but nothing here is locked to that: the same repository runs on any Node host, and swapping Airtable for a committed JSON file is a matter of replacing one module (the fallback file already contains every default value).
 
@@ -534,7 +534,7 @@ VibeStack Builder builds this on **GitHub + Railway + Airtable**, but nothing he
 
 1. Create the GitHub repository and push the build.
 2. Create the Airtable base from §3 (two tables, the seed rows, the three views) and mint a **read-only** personal access token scoped to `data.records:read` on that base only.
-3. Create one Railway service from the repo. Build: `npm ci && npm run build`. Start: `node ./dist/server/entry.mjs`. The server **must** bind `process.env.PORT` on host `0.0.0.0`.
+3. Create one Railway service from the repo. Build: `npm install && npm run build` (dependencies are exact-pinned in `package.json`; no lockfile is committed). Start: `node ./dist/server/entry.mjs`. The server **must** bind `process.env.PORT` on host `0.0.0.0`. When `SITE_URL` is not set, the server falls back to the Railway-provided public domain.
 4. Set the environment variables below.
 5. Set the healthcheck path to **`/health`**.
 6. Deploy. Then open the live URL and confirm: the hero renders, both roast cards render, the clip plays on scroll, the address opens a mail composer, and `/status` reads "Live sheet" with "4 of 4 present".
@@ -583,7 +583,7 @@ Each of these is a recommendation you can keep or trim.
 Every specced behaviour has at least one check. Playwright drives Chromium and WebKit at 360×640 and 1440×900 unless stated.
 
 **Content and data**
-1. With seeded Airtable data, `/` renders all 22 content keys in their specced positions and both published roast cards, in `Sort Order` (Sunrise Light, then Nightwood Dark).
+1. With seeded Airtable data, `/` renders all 21 content keys in their specced positions and both published roast cards, in `Sort Order` (Sunrise Light, then Nightwood Dark).
 2. The unpublished "Counterweight Medium" row never appears in the HTML.
 3. Unticking `Published` on both cards renders the empty state: "Nothing on the counter yet.", the guidance line, and the "Email us about this week's roast" button.
 4. `story.body` at 1,024 characters → the page shows the built-in paragraph and `/status` shows the exact warning sentence from §6.

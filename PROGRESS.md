@@ -1,29 +1,18 @@
 # PROGRESS
 
-## Done — QA FIX ROUND APPLIED (on the delivered, owner-accepted build)
-- Fixed /health source truth: failure now recorded only when a refresh COMPLETES
-  and fails (lastFailureAt); an in-flight stale-while-revalidate pass no longer
-  reads "degraded"/"cache" on a healthy system (decisions 17).
-- CI shipped (§12 test 53): playwright.config.ts + tests/e2e/site.spec.ts (12 axe
-  scans + security/voice/overflow checks; 13/13 green locally against the prod
-  server) + workflow. PUSH CONSTRAINT: the push channel 403s on
-  .github/workflows/* (no workflow token scope) — workflow staged at
-  docs/ci-workflow.yml for the owner to copy into place via the GitHub editor;
-  Railway's "wait for CI" check-suites toggle is the deploy-blocking switch
-  (owner dashboard). decisions 18.
-- Media pipeline now prefers the §8-canonical assets/master/master-bag.png
-  (falls back to candidates/master-candidate-3.png). The canonical file itself
-  is owner-uploaded (pixels live only in the repo). decisions 19.
-- Earlier QA items re-checked against the recorded push history + live checks:
-  index/status/404/layout/components, bag-spec.md, acceptance.md,
-  README-for-owner.md were all pushed in recorded commits and render on the
-  live site (verify_live passed hero/status/404/voice); nothing to change.
-- Full local gate before push: clean build, token lint, 21 unit tests,
-  13 e2e/axe tests — all green.
+## Done
+- Airtable base built and owner-seeded: Page Content (21 keys), Roast Profiles (3 rows, 2 published).
+- Full site built: hero, roast cards, film, story, contact, /status, designed 404, robots.txt, sitemap.xml, /health, /api/content.
+- Security headers, 405-on-writes, rate limits, /media/* immutable serving via middleware.
+- Media mastered on owner's Higgsfield (record.json + acceptance.md); owner uploaded master-bag.png and roast-clip-raw.mp4; build pipeline derives AVIF/WebP/JPEG + 720p/480p H.264 + poster + OG card.
+- 21 unit tests + 13 Playwright/axe e2e green; CI workflow live on GitHub (owner-copied; green on main).
+- Deployed to Railway: https://ember-oak-production.up.railway.app — verify_live passed (health, page content, status, 404, robots).
+- Design loop pass complete (3 rounds, all critics passing); owner accepted the design; review question closed; handoff delivered.
+- Deploy-phase reconciliation: blueprint §8/§9/§10/§12 text adopted to shipped reality (decisions entry 20); known issues recorded.
 
 ## In progress
-- Owner steps for QA closure: copy docs/ci-workflow.yml → .github/workflows/ci.yml;
-  upload master-bag.png; (optional, recommended) flip Railway's wait-for-CI toggle.
+- (nothing)
 
 ## Next
-- After owner steps: verify_live re-run; confirm CI runs green on the next push.
+- Owner-optional: flip Railway's "Wait for CI / check suites" toggle in their dashboard so a red check blocks deploys.
+- Re-check decision 10 (no lockfile) if the push channel's file-size limit is ever lifted.

@@ -189,3 +189,38 @@ so the copy is owner-performed: download the candidate, re-upload it as
 master-bag.png via GitHub's upload UI. The media pipeline now prefers the
 canonical path and falls back to the candidate path, so the site builds
 correctly both before and after the upload.
+
+## 20. Deploy-phase reconciliation: blueprint text adopted to shipped reality
+**Why (deploy phase):** the app is live and verified at
+https://ember-oak-production.up.railway.app. Four blueprint lines still
+described earlier intentions that decisions 1, 4, 5 and 10 had already
+superseded; the blueprint text now matches what ships, so spec and code
+version together:
+- §9 hosting row: "Node 20" → "Node 22" (decision 1: engines >=22 is the
+  platform floor; older majors fail health checks).
+- §12 test 1: "22 content keys" → "21" (decision 4: §3's seed table defines
+  exactly 21 keys; 22 was a counting error in the test text).
+- §10 step 3: "npm ci" → "npm install" with a note that deps are exact-pinned
+  and no lockfile is committed, and that SITE_URL falls back to the
+  Railway-provided domain (decision 10).
+- §8 asset-list line: "commit media into public/media/" → repo media/
+  directory served by the app at the same public /media/* URLs (decision 5:
+  the push channel refuses bracketed route filenames, so /media/* is served
+  by middleware with identical URLs and cache headers; §7's route table was
+  already correct).
+
+**Known issues shipping with this release (neither blocks the live site):**
+1. Railway's per-service "Wait for CI / check suites" toggle is not yet
+   enabled — it lives only in the owner's Railway dashboard (decision 18).
+   Until flipped, a push deploys without waiting for the GitHub check. CI
+   itself is green on main; the toggle is recommended, optional, and
+   owner-performed.
+2. No lockfile is committed (decision 10: transcribing ~190 KB of integrity
+   hashes through the inline push channel risks unverifiable corruption;
+   direct deps are exact-pinned instead). Transitive-dependency drift on a
+   future rebuild remains possible; mitigations are the exact pins, CI
+   running the full gate on every push, and the Railway health check gating
+   each deploy.
+   **Re-check:** if the push channel ever supports verified large files,
+   commit package-lock.json and restore "npm ci" in §10 — the reason for
+   this decision is the channel, not a preference.
