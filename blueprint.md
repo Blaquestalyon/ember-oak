@@ -330,7 +330,7 @@ The app is one content page plus two utility routes. All three sit on the §2 to
 
 **Route:** any unmatched path, `404` status · **Purpose:** send a lost visitor back in one tap.
 
-- Full-height centred block on `--bg-base` with the drum-glow radial behind it. Lucide `coffee` (32px, `--text-muted`), headline **"That page went cold."** (`--step-display-l`), body "There's only one page here, and it's this way.", primary action **"Back to the roastery"** (ember fill → `/`).
+- Full-height centred block on `--bg-base` with the drum-glow radial behind it. The coded oak-leaf-and-flame mark (32px, `--text-muted`), headline **"That page went cold."** (`--step-display-l`), body "There's only one page here, and it's this way.", primary action **"Back to the roastery"** (ember fill → `/`).
 - No search, no suggestions — there is nothing else to find. Header and footer render as normal so the wordmark is always a way home.
 - Requests with `Accept: application/json` receive `{"error":"not_found"}` with status 404 instead of HTML.
 
