@@ -11,7 +11,7 @@
  * is disabled under prefers-reduced-motion.
  */
 import type { VisibleRoast } from '../../lib/content';
-import { manifest, type ImageSet } from '../../lib/media';
+import { manifest, toSrcset, type ImageSet } from '../../lib/media';
 import CounterEdgeFrame from '../CounterEdgeFrame.astro';
 
 interface Props {
@@ -29,15 +29,7 @@ const set: ImageSet | null =
 
 /** srcset for one format across the rendered widths (640/1024/1600w). */
 const srcsetFor = (format: 'avif' | 'webp' | 'jpeg'): string =>
-  set
-    ? set.widths
-        .map((w) => {
-          const path = set.sources[format][String(w)];
-          return path ? `${path} ${w}w` : null;
-        })
-        .filter((entry): entry is string => entry !== null)
-        .join(', ')
-    : '';
+  set ? toSrcset(set.sources[format], set.widths) : '';
 
 /** JPEG fallback src for browsers that ignore <source>: the 1024w rendition. */
 const jpegSrc = set

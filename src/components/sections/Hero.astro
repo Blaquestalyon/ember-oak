@@ -8,7 +8,7 @@
  */
 import { ArrowDown } from 'lucide-astro';
 import CounterEdgeFrame from '../CounterEdgeFrame.astro';
-import { manifest, mediaStatus, type ImageSet } from '../../lib/media';
+import { manifest, mediaStatus, toSrcset, type ImageSet } from '../../lib/media';
 
 interface Props {
   eyebrow: string;
@@ -21,10 +21,6 @@ const { eyebrow, headline, subhead, alt, cue } = Astro.props;
 
 /** The photograph renders only when the whole set is present on disk (§5 flow 10). */
 const hero: ImageSet | null = mediaStatus().available.hero ? manifest.hero : null;
-
-function toSrcset(set: ImageSet, format: 'avif' | 'webp' | 'jpeg'): string {
-  return set.widths.map((w) => `${set.sources[format][String(w)]} ${w}w`).join(', ');
-}
 
 /** JPEG `src` fallback for ancient browsers: the second-largest rendition (1600w). */
 const jpegSrc = hero
@@ -41,13 +37,13 @@ const jpegSrc = hero
           <>
             <img class="hero__lqip" src={hero.lqip} alt="" aria-hidden="true" decoding="async" />
             <picture class="hero__picture">
-              <source type="image/avif" srcset={toSrcset(hero, 'avif')} sizes="100vw" />
-              <source type="image/webp" srcset={toSrcset(hero, 'webp')} sizes="100vw" />
+              <source type="image/avif" srcset={toSrcset(hero.sources.avif, hero.widths)} sizes="100vw" />
+              <source type="image/webp" srcset={toSrcset(hero.sources.webp, hero.widths)} sizes="100vw" />
               <img
                 class="hero__img"
                 data-hero-img
                 src={jpegSrc}
-                srcset={toSrcset(hero, 'jpeg')}
+                srcset={toSrcset(hero.sources.jpeg, hero.widths)}
                 sizes="100vw"
                 width={hero.width}
                 height={hero.height}
