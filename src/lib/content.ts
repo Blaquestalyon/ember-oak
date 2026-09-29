@@ -64,6 +64,10 @@ interface CacheState {
   roastRowWarnings: string[];
   lastSuccessAt: number | null;
   lastAttemptAt: number | null;
+  /** Set only when a refresh has COMPLETED and failed — never at attempt start,
+   *  so an in-flight stale-while-revalidate refresh is not reported as a
+   *  failure (the /health "degraded on first poll after idle" bug). */
+  lastFailureAt: number | null;
   keyRejected: boolean;
   /** A new attempt may start only after this time (one attempt per TTL window). */
   nextAttemptAt: number;
@@ -79,6 +83,7 @@ const state: CacheState = {
   roastRowWarnings: [],
   lastSuccessAt: null,
   lastAttemptAt: null,
+  lastFailureAt: null,
   keyRejected: false,
   nextAttemptAt: 0,
   inflight: null,
@@ -144,6 +149,9 @@ async function refresh(): Promise<void> {
     state.lastSuccessAt = Date.now();
     state.keyRejected = false;
   } catch (err) {
+    // A failure is recorded only here, on COMPLETION of a failed refresh —
+    // an in-flight refresh must never make a healthy system read "degraded".
+    state.lastFailureAt = Date.now();
     if (err instanceof AirtableAuthError) {
       state.keyRejected = true;
     }
@@ -233,8 +241,10 @@ function buildResolved(): ResolvedState {
   let source: ContentSource;
   if (state.lastSuccessAt === null) {
     source = 'fallback';
-  } else if (state.lastAttemptAt !== null && state.lastAttemptAt > state.lastSuccessAt) {
-    // The most recent attempt failed — the last good copy is showing.
+  } else if (state.lastFailureAt !== null && state.lastFailureAt > state.lastSuccessAt) {
+    // The most recent COMPLETED refresh failed — the last good copy is showing.
+    // (An in-flight refresh is not a failure: §7 pins that a routine
+    // stale-while-revalidate pass never reads as degraded.)
     source = 'cache';
   } else {
     source = 'airtable';
