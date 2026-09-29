@@ -9,13 +9,12 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { join, normalize, extname } from 'node:path';
 import { Readable } from 'node:stream';
 import { checkRateLimit } from './lib/rate-limit';
+import { MEDIA_ROOT } from './lib/media';
 // Imported for its validation side effect: a missing required variable throws
 // here, on the first module load, naming every missing var (§10) — the deploy
 // health check then fails and the log carries the exact sentence.
 import './lib/env';
 import tokensCss from './styles/tokens.css?raw';
-
-const MEDIA_ROOT = join(process.cwd(), 'media');
 
 const MEDIA_TYPES: Record<string, string> = {
   '.avif': 'image/avif',
