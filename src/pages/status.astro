@@ -7,6 +7,7 @@ import Layout from '../layouts/Layout.astro';
 import { getResolvedContent } from '../lib/content';
 import { mediaStatus } from '../lib/media';
 import { env, bootedAt } from '../lib/env';
+import { CONTENT_DEFAULTS } from '../content/fallback';
 
 let failed = false;
 let state;
@@ -58,9 +59,10 @@ interface Row {
 }
 
 let rows: Row[] = [];
-let email = 'thebag@power-in-numbers.net';
-let footerLine = 'Ember & Oak · Small-batch coffee roasters';
-let footerSocial = '';
+// Shell copy when even the status check fails: the committed built-in defaults.
+let email = CONTENT_DEFAULTS['contact.email']!.value;
+let footerLine = CONTENT_DEFAULTS['footer.line']!.value;
+let footerSocial = CONTENT_DEFAULTS['footer.social']!.value;
 
 if (!failed && state && media) {
   email = state.content['contact.email']!;
