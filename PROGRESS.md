@@ -1,25 +1,25 @@
 # PROGRESS
 
-## Done
-- Airtable base created and fully seeded (owner confirmed 21 content rows; 3 roasts).
-- Foundation, all five sections, status + 404, tests (21 green): built, integrated, pushed.
-- Media: four masters accepted (assets/master/), owner-supplied raw clip, build-time
-  derivative pipeline (ffmpeg via railpack.json).
-- DEPLOYED + VERIFIED LIVE: https://ember-oak-production.up.railway.app (health ok,
-  Live sheet, 2 roasts, 4 of 4 media, all voice strings, no literal email).
-- REVIEW QUESTION closed: owner confirmed nothing is missing.
-- DESIGN LOOP pass 1 complete (3 rounds × 3 fresh critics):
-  · R1: Brief PASS; Craft FAIL (bar floor vs pinned scale — bar corrected, entry 15);
-    System FAIL (404 cup icon — §2 NEVER wins, §4 corrected, Mark swapped in, entry 14).
-  · R2: all three PASS.
-  · R3 (after utility-route nav fix, entry 16): all three PASS with measurements.
-  Changes: one page spine at every width (film/story/footer/status realigned),
-  honest gap scale (contact rhythm, footer pad, 404 2:3 slack), 404 mark, utility nav.
+## Done — BUILD COMPLETE, OWNER ACCEPTED
+- Airtable base seeded (21 content rows, 3 roasts) — owner-confirmed.
+- Full site built, tested (21 unit tests green), deployed and live-verified at
+  https://ember-oak-production.up.railway.app (Live sheet, 4 of 4 media,
+  all voice strings, no literal email, headers, 404/status/robots/sitemap).
+- Review question closed: nothing missing.
+- Design loop pass 1 (3 rounds × 3 fresh critics) complete; final round all
+  PASS with measurements. Spec corrections recorded (decisions 13–16,
+  blueprint §4 404-icon line).
+- Owner ACCEPTED the design on the live site.
+- Owner handbook (README-for-owner.md) committed. Handoff delivered.
 
 ## In progress
-- Owner accept-or-continue question on the live site (design pass 1 done).
+- Nothing. The build is closed.
 
-## Next
-- If accepted: HANDOFF (report_progress milestone + handoff_md). If more rounds:
-  another 3-round pass with fresh critics.
-- Deploy note: every push redeploys the live site; prove the build first.
+## Next (for any future session)
+- Changes arrive as change builds: the blueprint given at session start is the
+  current plan; rebuild only affected parts; prove `npm run build` passes
+  before pushing — every push redeploys the live site.
+- Airtable schema ids: config/airtable-schema.json. Media regeneration kit:
+  assets/master/ (masters + prompts + acceptance; job ids in record.json).
+- Deploy: Railway project dc9775a0-ae22-4577-976c-8556d291e716, healthcheck
+  /health, env in §10 (SITE_URL falls back to RAILWAY_PUBLIC_DOMAIN).
