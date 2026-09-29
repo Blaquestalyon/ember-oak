@@ -1,25 +1,29 @@
 # PROGRESS
 
-## Done — BUILD COMPLETE, OWNER ACCEPTED
-- Airtable base seeded (21 content rows, 3 roasts) — owner-confirmed.
-- Full site built, tested (21 unit tests green), deployed and live-verified at
-  https://ember-oak-production.up.railway.app (Live sheet, 4 of 4 media,
-  all voice strings, no literal email, headers, 404/status/robots/sitemap).
-- Review question closed: nothing missing.
-- Design loop pass 1 (3 rounds × 3 fresh critics) complete; final round all
-  PASS with measurements. Spec corrections recorded (decisions 13–16,
-  blueprint §4 404-icon line).
-- Owner ACCEPTED the design on the live site.
-- Owner handbook (README-for-owner.md) committed. Handoff delivered.
+## Done — QA FIX ROUND APPLIED (on the delivered, owner-accepted build)
+- Fixed /health source truth: failure now recorded only when a refresh COMPLETES
+  and fails (lastFailureAt); an in-flight stale-while-revalidate pass no longer
+  reads "degraded"/"cache" on a healthy system (decisions 17).
+- CI shipped (§12 test 53): playwright.config.ts + tests/e2e/site.spec.ts (12 axe
+  scans + security/voice/overflow checks; 13/13 green locally against the prod
+  server) + workflow. PUSH CONSTRAINT: the push channel 403s on
+  .github/workflows/* (no workflow token scope) — workflow staged at
+  docs/ci-workflow.yml for the owner to copy into place via the GitHub editor;
+  Railway's "wait for CI" check-suites toggle is the deploy-blocking switch
+  (owner dashboard). decisions 18.
+- Media pipeline now prefers the §8-canonical assets/master/master-bag.png
+  (falls back to candidates/master-candidate-3.png). The canonical file itself
+  is owner-uploaded (pixels live only in the repo). decisions 19.
+- Earlier QA items re-checked against the recorded push history + live checks:
+  index/status/404/layout/components, bag-spec.md, acceptance.md,
+  README-for-owner.md were all pushed in recorded commits and render on the
+  live site (verify_live passed hero/status/404/voice); nothing to change.
+- Full local gate before push: clean build, token lint, 21 unit tests,
+  13 e2e/axe tests — all green.
 
 ## In progress
-- Nothing. The build is closed.
+- Owner steps for QA closure: copy docs/ci-workflow.yml → .github/workflows/ci.yml;
+  upload master-bag.png; (optional, recommended) flip Railway's wait-for-CI toggle.
 
-## Next (for any future session)
-- Changes arrive as change builds: the blueprint given at session start is the
-  current plan; rebuild only affected parts; prove `npm run build` passes
-  before pushing — every push redeploys the live site.
-- Airtable schema ids: config/airtable-schema.json. Media regeneration kit:
-  assets/master/ (masters + prompts + acceptance; job ids in record.json).
-- Deploy: Railway project dc9775a0-ae22-4577-976c-8556d291e716, healthcheck
-  /health, env in §10 (SITE_URL falls back to RAILWAY_PUBLIC_DOMAIN).
+## Next
+- After owner steps: verify_live re-run; confirm CI runs green on the next push.

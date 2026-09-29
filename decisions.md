@@ -150,29 +150,42 @@ normal" as the letter of the spec; the links are plain anchors to /#roasts etc.
 and work from any route, so the withSectionNav switch was removed and all three
 routes share one shell.
 
-## 17. Optimization pass (2026-09-29) — same behaviour, fewer expressions
-Pre-testing tidy. Rendered HTML verified equivalent before/after (whitespace
-only), /api/content and /health byte-identical; tests, token lint and the
-production build all green on both sides. No behaviour, copy, check or token
-changed. Consolidated:
-- One shared `toSrcset()` in src/lib/media.ts replaces the four copies of the
-  srcset-building expression (Hero, RoastCard, Film poster, index.astro's hero
-  preload). The shared form skips absent renditions (RoastCard's variant); the
-  manifest always carries every width, so output is unchanged.
-- `MEDIA_ROOT` is now exported from src/lib/media.ts and used by the
-  middleware, instead of each module deriving the media directory itself.
-- The dead `withSectionNav` prop was deleted from Layout/Header — entry 16
-  already records the switch as removed; nothing ever passed it and the links
-  rendered unconditionally. Header markup is now the plain anchors.
-- /status's shell-fallback strings (contact email, footer line) now come from
-  CONTENT_DEFAULTS instead of restating the same literals.
-- /api/content returns `state.roasts` directly: VisibleRoast is exactly the §7
-  wire shape (same nine fields, same order), so the field-by-field re-map was a
-  restatement. JSON output verified byte-identical.
-- src/lib/airtable.ts's two identical safeParse/filter/map chains became one
-  `parseValid()` helper.
-Seen and left alone: `sentenceWithEncodedAddress` (obfuscate.ts) has no
-production caller — it is the §6 mechanism for pinned copy naming the address
-and is exercised by the shipped unit tests, so it stays; likewise the
-`resetMediaStatusForTests` hook. Header and Footer each carry their own 4-line
-wordmark style (scoped CSS; sharing would add a global class for two uses).
+## 17. /health source flag: failure recorded on completion, never at attempt start
+**Why (QA fix round):** buildResolved() treated `lastAttemptAt > lastSuccessAt`
+as "the last attempt failed", but ensureRefresh() stamps lastAttemptAt when it
+KICKS a refresh — so the very request that triggers a routine TTL-expiry
+stale-while-revalidate pass reported contentSource "cache" / status "degraded"
+on a healthy system (self-correcting on the next request; an uptime monitor
+polling every 5 min with a 60s TTL would see "degraded" on almost every poll).
+Fix: a new `lastFailureAt` is set only in refresh()'s catch (i.e. after a
+refresh has completed and failed); the source flag compares lastFailureAt to
+lastSuccessAt. lastAttemptAt is kept solely for the status page's honest
+"Last checked" row.
+
+## 18. CI added: build + token lint + Vitest + Playwright + axe on every push
+**Why (§12 test 53):** .github/workflows/ci.yml runs the full gate; the e2e/axe
+suite (tests/e2e/site.spec.ts + playwright.config.ts) boots the production
+server with dummy Airtable credentials — the committed-fallback path is a §6
+designed state, so no secret is needed in CI. axe runs on all three screens at
+360×640 and 1440×900 with only `video-caption` disabled (the clip is silent by
+design per §8, a false positive axe cannot detect).
+**Delivery constraint:** the build platform's push channel is refused (403) on
+any push containing .github/workflows/* — its token lacks workflow permissions.
+The workflow therefore ships STAGED at docs/ci-workflow.yml, and the owner
+copies it to .github/workflows/ci.yml in the GitHub editor (their session has
+the permission). "A red check blocks deploy": GitHub carries the check;
+Railway's per-service "Wait for CI / check suites" toggle is the enforcement
+switch and lives in the owner's Railway dashboard — both owner steps are
+surfaced plainly, never silently skipped.
+**Re-check:** if the push channel ever gains workflow scope, commit the file
+directly and delete the staged copy.
+
+## 19. The accepted master's canonical name (§8: assets/master/master-bag.png)
+**Why (QA fix round):** the accepted master shipped only under its candidate
+name (candidates/master-candidate-3.png), but §8 pins the uncropped accepted
+master at assets/master/master-bag.png. The pixels exist only in the GitHub
+repo (generated straight into it; this sandbox cannot read the private repo),
+so the copy is owner-performed: download the candidate, re-upload it as
+master-bag.png via GitHub's upload UI. The media pipeline now prefers the
+canonical path and falls back to the candidate path, so the site builds
+correctly both before and after the upload.
