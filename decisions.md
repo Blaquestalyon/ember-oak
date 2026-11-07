@@ -224,3 +224,32 @@ version together:
    **Re-check:** if the push channel ever supports verified large files,
    commit package-lock.json and restore "npm ci" in §10 — the reason for
    this decision is the channel, not a preference.
+
+## 21. Optimization pass (2026-09-29) — same behaviour, fewer expressions
+_Restored 2026-11-06. The optimization pass wrote this as entry 17 in commit
+9594c78; the build's next decisions push (283137f) replaced the file and dropped it._
+Pre-testing tidy. Rendered HTML verified equivalent before/after (whitespace
+only), /api/content and /health byte-identical; tests, token lint and the
+production build all green on both sides. No behaviour, copy, check or token
+changed. Consolidated:
+- One shared `toSrcset()` in src/lib/media.ts replaces the four copies of the
+  srcset-building expression (Hero, RoastCard, Film poster, index.astro's hero
+  preload). The shared form skips absent renditions (RoastCard's variant); the
+  manifest always carries every width, so output is unchanged.
+- `MEDIA_ROOT` is now exported from src/lib/media.ts and used by the
+  middleware, instead of each module deriving the media directory itself.
+- The dead `withSectionNav` prop was deleted from Layout/Header — entry 16
+  already records the switch as removed; nothing ever passed it and the links
+  rendered unconditionally. Header markup is now the plain anchors.
+- /status's shell-fallback strings (contact email, footer line) now come from
+  CONTENT_DEFAULTS instead of restating the same literals.
+- /api/content returns `state.roasts` directly: VisibleRoast is exactly the §7
+  wire shape (same nine fields, same order), so the field-by-field re-map was a
+  restatement. JSON output verified byte-identical.
+- src/lib/airtable.ts's two identical safeParse/filter/map chains became one
+  `parseValid()` helper.
+Seen and left alone: `sentenceWithEncodedAddress` (obfuscate.ts) has no
+production caller — it is the §6 mechanism for pinned copy naming the address
+and is exercised by the shipped unit tests, so it stays; likewise the
+`resetMediaStatusForTests` hook. Header and Footer each carry their own 4-line
+wordmark style (scoped CSS; sharing would add a global class for two uses).
